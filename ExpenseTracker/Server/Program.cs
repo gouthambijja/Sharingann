@@ -1,3 +1,5 @@
+using ExpenseTracker.Server;
+using ExpressTrackerLogicLayer;
 using Microsoft.AspNetCore.ResponseCompression;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
+Startup.StartUpConfigure(builder.Services,builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
