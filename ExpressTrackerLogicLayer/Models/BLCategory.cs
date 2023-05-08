@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ExpressTrackerLogicLayer.Models
 {
-    internal class Category
+    public class BLCategory
     {
-        public int Id { get; set; }
+        public string CategoryId { get; set; }
         public string? Name { get; set; }
         public string? UserId { get; set; }
     }

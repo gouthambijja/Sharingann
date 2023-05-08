@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExpressTrackerLogicLayer.Models
+namespace ExpenseTracker.Server.Models
 {
-    internal class User
+    public class User
     {
         public string? UserId { get; set; }
         public string? Username { get; set; }

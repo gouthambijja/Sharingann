@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Server", "ExpenseTracker\Server\ExpenseTracker.Server.csproj", "{DFB31AA4-271D-43CC-ABDE-C9C9500F527D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Server", "ExpenseTracker\Server\ExpenseTracker.Server.csproj", "{DFB31AA4-271D-43CC-ABDE-C9C9500F527D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpenseTracker.Client", "ExpenseTracker\Client\ExpenseTracker.Client.csproj", "{787FAD36-069D-4348-92BA-E86972A4D2F1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpenseTracker.Client", "ExpenseTracker\Client\ExpenseTracker.Client.csproj", "{787FAD36-069D-4348-92BA-E86972A4D2F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressTrackerLogicLayer", "ExpressTrackerLogicLayer\ExpressTrackerLogicLayer.csproj", "{C8445FCE-303E-42EA-98B2-3761F7AA3877}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpressTrackerLogicLayer", "ExpressTrackerLogicLayer\ExpressTrackerLogicLayer.csproj", "{C8445FCE-303E-42EA-98B2-3761F7AA3877}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpressTrackerDBAccessLayer", "ExpressTrackerDBAccessLayer\ExpressTrackerDBAccessLayer.csproj", "{15CF53BD-9912-4F1E-B483-6354D2036586}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpressTrackerDBAccessLayer", "ExpressTrackerDBAccessLayer\ExpressTrackerDBAccessLayer.csproj", "{15CF53BD-9912-4F1E-B483-6354D2036586}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

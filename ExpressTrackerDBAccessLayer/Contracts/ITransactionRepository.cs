@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ExpressTrackerDBAccessLayer.Contracts
 {
-    internal interface ITransactionRepository
+    public interface ITransactionRepository
     {
         Task<Transaction> Add(Transaction transaction);
         Task<Transaction> Update(Transaction transaction);

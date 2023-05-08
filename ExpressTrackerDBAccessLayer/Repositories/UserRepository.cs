@@ -36,12 +36,12 @@ namespace ExpressTrackerDBAccessLayer.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<User> Get(string UserId, string userPassword)
+        public async Task<User> Get(string Username, string userPassword)
         {
             try
             {
                 var x = await _UserDBContext.Users.
-                    Where(u => u.UserId == UserId && u.Password == userPassword)
+                    Where(u => u.Username == Username && u.Password == userPassword)
                     .FirstOrDefaultAsync();
                 return x;
             }
@@ -51,9 +51,11 @@ namespace ExpressTrackerDBAccessLayer.Repositories
             }
         }
 
-        public async  Task<User> GetById(string UserId)
+        public async  Task<bool> GetById(string UserId)
         {
-            return await _UserDBContext.Users.Where(u => u.UserId == UserId).FirstOrDefaultAsync();
+            var _user =  await _UserDBContext.Users.Where(u => u.Username == UserId).ToListAsync();
+            if(_user.Count == 0) return false;
+            return true;
         }
 
         public async Task<User?> Update(User _user)

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ExpressTrackerDBAccessLayer.Contracts
 {
-    internal interface ICategoryRepository
+    public interface ICategoryRepository
     {
         Task<Category> Add(Category category);
         Task<Category> Delete(Category category);
