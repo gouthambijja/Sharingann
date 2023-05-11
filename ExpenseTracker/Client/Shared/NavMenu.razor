@@ -1,39 +1,57 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
+<nav class="navbar navbar-expand-md mb-3 navbar-primary bg-primary shadow-sm sticky-top bg-gradient px-3">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">ExpenseTracker</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
+        <a class="navbar-brand text-light" href="">ExpenseTracker</a>
+        <button class="navbar-toggler btn-light @NavButtonCssClass" @onclick="ToggleNavMenu" type="button" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span><i class="fa-thin fa-bars"></i></span>
         </button>
+        <div class="collapse navbar-collapse @NavBarCssClass " id="navbarCollapse" @onclick="ToggleNavMenu">
+            <ul class="navbar-nav d-flex justify-content-center align-items-center h6 small">
+                <li class="OnHoverDecorate pointer text-light px-3" @onclick="NavigateToHome">
+                    Home
+                </li>
+                <li class="OnHoverDecorate pointer text-light px-3" @onclick="NavigateToDashBoard">
+                    DashBoard
+                </li>
+                <li class="OnHoverDecorate pointer text-light px-3" @onclick="NavigateToProfile">
+                    Profile
+                </li>
+            </ul>
+        </div>
+        <span class="text-light pointer" @onclick="logout">logout <i class="fa fa-sign-out" aria-hidden="true"></i></span>
     </div>
-</div>
-
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>
-    </nav>
-</div>
+</nav>
 
 @code {
     private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string? NavBarCssClass => collapseNavMenu ? null : "show";
+    private string? NavButtonCssClass => collapseNavMenu ? "collapsed" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
     }
+    private async void logout()
+    {
+        await localStorage.ClearAsync();
+        nav.NavigateTo("/login");
+    }
+    protected override void OnInitialized()
+    {
+
+    }
+    private void NavigateToHome()
+    {
+        nav.NavigateTo("/home");
+    }
+    private void NavigateToDashBoard()
+    {
+        nav.NavigateTo("/DashBoard");
+    }
+    private void NavigateToProfile()
+    {
+        nav.NavigateTo("/profile");
+    }
 }
+

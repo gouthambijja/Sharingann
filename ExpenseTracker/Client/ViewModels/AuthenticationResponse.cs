@@ -2,6 +2,6 @@
 {
     public class AuthenticationResponse
     {
-        public string? token;
+        public string? Token;
     }
 }

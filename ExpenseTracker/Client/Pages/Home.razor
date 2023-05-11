@@ -1,0 +1,35 @@
+﻿@page "/home"
+@using ExpenseTracker.Client.ViewModels;
+@using ExpressTrackerLogicLayer.Models;
+@inject IHomeViewModel _homeViewModel
+@inject StateContainerService stateService
+@implements IDisposable
+@inject IToastService toastService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
+
+
+
+<div class="d-flex justify-content-between" style="width:100%">
+    <div class="" style="width:30%"></div>
+    <Transactions />
+    </div>
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = await localStorage.GetItemAsync<string>("jwt_token");
+        if (token == null) nav.NavigateTo("/login");
+        stateService.SetUser(await _homeViewModel.GetUserByJWT(token));
+        toastService.ShowInfo("home rendered!");
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+    }
+    public void Dispose()
+    {
+        stateService.OnStateChange -= StateHasChanged;
+    }
+}

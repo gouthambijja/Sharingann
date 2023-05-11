@@ -1,13 +1,38 @@
-﻿@inherits LayoutComponentBase
+﻿@using Blazored.Toast.Configuration
+@using ExpenseTracker.Client.Pages
+@using ExpenseTracker.Client.ViewModels;
+@using ExpressTrackerLogicLayer.Models;
+@inherits LayoutComponentBase
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
 
-<div class="page"
+<div class="">
+    <NavMenu />
     <main>
-        <nav class="navbar navbar-light bg-light">
-  <a class="navbar-brand" href="#">
-    <img src="/docs/4.0/assets/brand/bootstrap-solid.svg" width="30" height="30" class="d-inline-block align-top" alt="">
-    Bootstrap
-  </a>
-</nav>
-@Body
+        @Body
     </main>
+
+    <BlazoredToasts Position="ToastPosition.BottomRight"
+                    Timeout="10"
+                    IconType="IconType.FontAwesome"
+                    SuccessClass="success-toast-override"
+                    SuccessIcon="fa fa-thumbs-up"
+                    ErrorIcon="fa fa-bug"
+                    ShowProgressBar="true" />
 </div>
+@code {
+
+
+
+
+
+    protected override async void OnInitialized()
+    {
+        string token = await localStorage.GetItemAsync<string>("jwt_token");
+        if (token == null)
+        {
+            nav.NavigateTo("/login");
+        }
+        
+    }
+}

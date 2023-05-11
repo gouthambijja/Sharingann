@@ -51,6 +51,17 @@ namespace ExpressTrackerLogicLayer.Services
             return await _userRepository.GetById(UserId);
         }
 
+        public async Task<BLUser> GetUserById(string UserId)
+        {
+            User user = await _userRepository.GetUserById(UserId);
+            return new BLUser()
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Password = null
+            };
+        }
+
         public async Task<BLUser> Update(BLUser user)
         {
             var mapper = AutoMappers.InitializeUserAutoMapper();

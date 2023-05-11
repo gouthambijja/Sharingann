@@ -1,4 +1,13 @@
 ﻿@page "/counter"
+@using ExpenseTracker.Client.ViewModels;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using ExpenseTracker.Client.ViewModels;
+@inject HttpClient http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
+@inject ICounter _counter
+@inject StateContainerService stateService
+
 
 <PageTitle>Counter</PageTitle>
 
@@ -7,8 +16,24 @@
 <p role="status">Current count: @currentCount</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@_toen
 
 @code {
+
+    public string _toen = "kakarot";
+    protected override async void OnInitialized()
+    {
+        stateService.OnStateChange += StateHasChanged;
+        var token = await localStorage.GetItemAsync<string>("jwt_token");
+
+        if (token != null)
+        {
+            _toen = await _counter.GetData();
+            if (_toen == null) nav.NavigateTo("/");
+            StateHasChanged();
+        }
+
+    }
     private int currentCount = 0;
 
     private void IncrementCount()

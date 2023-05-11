@@ -57,7 +57,12 @@ namespace ExpressTrackerDBAccessLayer.Repositories
             if(_user.Count == 0) return false;
             return true;
         }
-
+        public async Task<User> GetUserById(string UserId)
+        {
+            var _user = await _UserDBContext.Users.Where(u => u.UserId == UserId).ToListAsync();
+            if (_user.Count == 0) return null;
+            return _user[0];
+        }
         public async Task<User?> Update(User _user)
         {
             var users = await _UserDBContext.Users.

@@ -47,7 +47,7 @@ namespace ExpressTrackerLogicLayer.Services
             {
                 cfg.CreateMap<Models.BLUser, User>()
                     .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
-                    .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username));
+                    .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.Username)); 
                     
             });
              return new Mapper(config);

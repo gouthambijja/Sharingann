@@ -14,5 +14,6 @@ namespace ExpressTrackerDBAccessLayer.Contracts
         Task<User> Delete(string UserId);
         Task<User> Get(string UserId, string userPassword);
         Task<bool> GetById(string UserId);
+        Task<User> GetUserById(string UserId);
     }
 }

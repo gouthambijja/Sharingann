@@ -1,21 +1,29 @@
 ﻿@page "/login"
+@using ExpenseTracker.Client.ViewModels;
+@using ExpressTrackerLogicLayer.Models;
 @layout EmptyLayout
 @inject NavigationManager nav
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject ILoginViewModel _loginViewModel
+@inject StateContainerService stateService
+@implements IDisposable
+@inject IToastService toastService
+
 
 <div class="vw-100 vh-100 d-flex justify-content-center align-items-center ">
-    <div class="w-25 h-30 border border-primary p-5 rounded">
+    <EditForm Model="@_loginViewModel" class="vw-25 vh-30  shadow p-5 rounded " OnSubmit="@LoginUser">
         <div class="form-floating mb-3 ">
-            <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+            <input type="Username" required @bind="_loginViewModel.Username" class="form-control" id="floatingInput" placeholder="Username">
             <label for="floatingInput">Username</label>
         </div>
-        <div class="form-floating ">
-            <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+        <div class="form-floating mb-3">
+            <input type="password" required @bind="_loginViewModel.Password" class="form-control" id="floatingPassword" placeholder="Password">
             <label for="floatingPassword">Password</label>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        <button type="submit" class="btn btn-primary ">Login</button>
         <div class="text-center m-3">
             <p>Forget password? <a href="#!">Reset</a></p>
-            <p>Not a member? <a @onclick="change">Register</a></p>
+            <p>Not a member? <a @onclick="register" class="pointer">Register</a></p>
             <p>or sign up with:</p>
             <button type="button" class="btn btn-link btn-floating mx-1">
                 <i class="fab fa-facebook-f"></i>
@@ -33,11 +41,41 @@
                 <i class="fab fa-github"></i>
             </button>
         </div>
-    </div>
+
+
+    </EditForm>
 </div>
 @code {
-    public void change()
+    protected async override Task OnInitializedAsync()
     {
-        nav.NavigateTo("counter");
+        stateService.OnStateChange += StateHasChanged;
+        string token = await localStorage.GetItemAsync<string>("jwt_token");
+        if (token != null)
+        {
+            var user = await _loginViewModel.GetUserByJWT(token);
+            if (user != null)
+            {
+                stateService.SetUser(user);
+                nav.NavigateTo("home");
+                toastService.ShowInfo("Login Rendered");
+            }
+        }
+    }
+
+    public async void LoginUser()
+    {
+        var response = await _loginViewModel.Login();
+        string token = await _loginViewModel.GetAuthenticateJwt(response);
+        await localStorage.SetItemAsync("jwt_token", token);
+        stateService.SetUser(response);
+        nav.NavigateTo($"home");
+    }
+    public void register()
+    {
+        nav.NavigateTo("registration");
+    }
+    public void Dispose()
+    {
+        stateService.OnStateChange -= StateHasChanged;
     }
 }

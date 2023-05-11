@@ -1,0 +1,64 @@
+﻿@using ExpenseTracker.Client.ViewModels;
+@using ExpressTrackerLogicLayer.Models;
+@inject IHomeViewModel _homeViewModel
+@inject StateContainerService stateService
+@implements IDisposable
+@inject IToastService toastService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
+
+<div class="container TransactionContainer " style="max-width: 65%;margin:0px;">
+    @if (stateService.Transactions != null)
+    {
+        @for (i = 0; i < transactions.Count();)
+        {
+            <div class="row mb-1">
+                @for (int j = 0; i < transactions.Count() && j < 3; j++, i++)
+                {
+                    <div class="col-sm-4">
+                        <div class="card text-center">
+                            <div class="card-header">
+                                @transactions[i].Name
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">@transactions[i].Amount</h5>
+                                <p class="card-text">@transactions[i].Category</p>
+                                <a href="#" class="btn btn-primary">@transactions[i].Description</a>
+                            </div>
+                            <div class="card-footer text-muted">
+                                @transactions[i].Date
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+    }
+</div>
+
+@code {
+    public int i = 0;
+    public List<BLTransaction> transactions = new List<BLTransaction>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string token = await localStorage.GetItemAsync<string>("jwt_token");
+        if (token == null) nav.NavigateTo("/login");
+        stateService.SetUser(await _homeViewModel.GetUserByJWT(token));
+
+        if (stateService.User != null)
+        {
+            transactions = await _homeViewModel.GetTransactions(stateService.User.UserId);
+        }
+        stateService.SetTrasaction(transactions);
+        toastService.ShowInfo("Transactions!");
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+    }
+    public void Dispose()
+    {
+        stateService.OnStateChange -= StateHasChanged;
+    }
+}

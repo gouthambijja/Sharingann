@@ -20,11 +20,15 @@ namespace ExpressTrackerDBAccessLayer.Models
             modelBuilder.Entity<Transaction>(x =>
              x.HasOne(u => u.User)
              .WithMany(t => t.Transactions)
-             .HasForeignKey(u => u.TransactionId));
+             .HasForeignKey(u => u.UserId));
+            //modelBuilder.Entity<User>(x =>
+            // x.HasMany(u => u.Transactions)
+            // .WithOne(t => t.User)
+            // .HasForeignKey(u => u.UserId));
             modelBuilder.Entity<Category>(x =>
             x.HasOne(u => u.User)
             .WithMany(t => t.Categories)
-            .HasForeignKey(u => u.CategoryId));
+            .HasForeignKey(u => u.UserId));
         }
 
     }
