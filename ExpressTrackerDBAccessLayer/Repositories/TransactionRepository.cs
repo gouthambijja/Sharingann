@@ -53,7 +53,7 @@ namespace ExpressTrackerDBAccessLayer.Repositories
             try
             {
                 var _Transactions = await _TransactionDBContext.Transactions
-                    .Where(e => e.UserId == UserId).ToListAsync();
+                    .Where(e => e.UserId == UserId).OrderByDescending(e => e.Date).ToListAsync();
                 return _Transactions;
             }
             catch

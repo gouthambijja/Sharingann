@@ -1,0 +1,54 @@
+﻿@using ExpenseTracker.Client.ViewModels;
+@using ExpressTrackerLogicLayer.Models;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject StateContainerService stateService
+@inject IToastService toastService
+@inject IHomeViewModel _homeViewModel
+@inject NavigationManager nav
+@inject ICategoryViewModel _categoryViewModel
+
+<div class="category-container shadow ">
+    <div class=" d-flex overflow-scroll category-inner ">
+    @if(Categories != null){
+        @foreach(var item in stateService.Categories){
+                
+            <span class="badge text-light bg-primary my-3 ms-1">@item.Name <button class="delete-category" @onclick="()=>DeleteCategory(item)">x</button></span>
+        }
+    }</div>
+    <EditForm Model="_categoryViewModel" class="  px-5 rounded " OnSubmit="@AddCategory">
+
+        <div class="form-floating mb-3 ">
+            <input type="text" required class="form-control" @bind="_categoryViewModel.Name" @bind:event="onchange" id="CategoryName" placeholder="Category Name">
+            <label for="CategoryName">Category</label>
+        </div>
+        <button type="submit" class="btn btn-primary" >Add Category</button>
+        <div class="text-center m-3">
+        </div>
+
+    </EditForm>
+</div>
+
+
+@code {
+    [Parameter]
+    public List<BLCategory> Categories{ get; set; }
+    public async void AddCategory()
+    {
+        _categoryViewModel.UserId = stateService.User.UserId;
+        _categoryViewModel.CategoryId = "";
+        var category = await _categoryViewModel.AddCategory();
+        stateService.AddCategory(category);
+    }
+    public async void DeleteCategory(BLCategory category)
+    {
+        try
+        {
+            await _categoryViewModel.DeleteCategory(category);
+            stateService.DeleteCategory(category);
+        }
+        catch
+        {
+            
+        }
+    }
+}

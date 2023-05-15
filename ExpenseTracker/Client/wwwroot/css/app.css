@@ -16,6 +16,9 @@ html, body {
     -ms-overflow-style: none !important; /* IE and Edge */
     scrollbar-width: none !important; /* Firefox */
 }
+.pointer{
+    cursor:pointer;
+}
 *{
     box-sizing:border-box;
 }
@@ -47,3 +50,5 @@ html, body {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+

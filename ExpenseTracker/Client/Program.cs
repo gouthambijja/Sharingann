@@ -8,6 +8,8 @@ using BlazorApp2.Client.handlers;
 using ExpenseTracker.Client.ViewModels;
 using Blazored.Toast;
 
+
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
@@ -28,10 +30,18 @@ builder.Services.AddHttpClient<IRegisterViewModel, RegisterViewModel>
 builder.Services.AddHttpClient<IHomeViewModel, HomeViewModel>
                ("FetchDataViewModelClient", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
                .AddHttpMessageHandler<CustomAuthorizationHandler>();
+builder.Services.AddHttpClient<ITransactionViewModel, TransactionViewModel>
+               ("FetchDataViewModelClient", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+               .AddHttpMessageHandler<CustomAuthorizationHandler>();
+builder.Services.AddHttpClient<ICategoryViewModel, CategoryViewModel>
+               ("FetchDataViewModelClient", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+               .AddHttpMessageHandler<CustomAuthorizationHandler>();
 
 
 
-object value = builder.Services.AddBlazoredToast();
+builder.Services.AddBlazoredToast();
+
+
 builder.Services.AddTransient<CustomAuthorizationHandler>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddAuthorizationCore();

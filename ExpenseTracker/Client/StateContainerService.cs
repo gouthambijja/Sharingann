@@ -8,7 +8,8 @@ namespace ExpenseTracker.Client
         /// The State property with initial value
         /// </summary>
         public BLUser User { get; set; }
-        public List<BLTransaction> Transactions { get; set; }
+        public List<BLTransaction> Transactions = new List<BLTransaction>();
+        public List<BLCategory> Categories= new List<BLCategory>();
         /// <summary>
         /// The event that will be raised for state changed
         /// </summary>
@@ -25,11 +26,27 @@ namespace ExpenseTracker.Client
         }
         public void AddTrasaction(BLTransaction _transaction)
         {
-            Transactions.Add(_transaction);
+            Transactions.Insert(0, _transaction);
             NotifyStateChanged();
         }
-        public void SetTrasaction(List<BLTransaction> _transactions)
+        public void SetCategory(List<BLCategory> _Categories)
         {
+            if(_Categories!=null)
+            Categories = _Categories;
+            NotifyStateChanged();
+        }
+        public void DeleteCategory(BLCategory _category)
+        {
+            Categories.Remove(_category); NotifyStateChanged();
+        }
+        public void AddCategory(BLCategory category)
+        {
+            Categories.Add(category);
+            NotifyStateChanged();
+        }
+        public void SetTransaction(List<BLTransaction> _transactions)
+        {
+            if(_transactions!=null)
             Transactions = _transactions;
             NotifyStateChanged();
         }
@@ -40,4 +57,3 @@ namespace ExpenseTracker.Client
         private void NotifyStateChanged() => OnStateChange?.Invoke();
     }
 }
-    

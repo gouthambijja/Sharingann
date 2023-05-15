@@ -10,6 +10,7 @@
 @inject IToastService toastService
 
 
+
 <div class="vw-100 vh-100 d-flex justify-content-center align-items-center ">
     <EditForm Model="@_loginViewModel" class="vw-25 vh-30  shadow p-5 rounded " OnSubmit="@LoginUser">
         <div class="form-floating mb-3 ">
@@ -20,7 +21,16 @@
             <input type="password" required @bind="_loginViewModel.Password" class="form-control" id="floatingPassword" placeholder="Password">
             <label for="floatingPassword">Password</label>
         </div>
-        <button type="submit" class="btn btn-primary ">Login</button>
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary ">Login</button>
+            @if (logging == true)
+            {
+                <span class="spinner-border text-primary center" role="status">
+                </span>
+            }
+        </div>
+
+
         <div class="text-center m-3">
             <p>Forget password? <a href="#!">Reset</a></p>
             <p>Not a member? <a @onclick="register" class="pointer">Register</a></p>
@@ -44,31 +54,53 @@
 
 
     </EditForm>
+
 </div>
 @code {
+    
+    public bool logging = false;
     protected async override Task OnInitializedAsync()
     {
         stateService.OnStateChange += StateHasChanged;
         string token = await localStorage.GetItemAsync<string>("jwt_token");
         if (token != null)
         {
-            var user = await _loginViewModel.GetUserByJWT(token);
-            if (user != null)
+            try
             {
-                stateService.SetUser(user);
-                nav.NavigateTo("home");
-                toastService.ShowInfo("Login Rendered");
+                var user = await _loginViewModel.GetUserByJWT(token);
             }
+            catch
+            {
+
+            }
+            //if (user != null)
+            //{
+            //    stateService.SetUser(user);
+            //    nav.NavigateTo("home");
+            //    toastService.ShowInfo("Login Rendered");
+            //}
         }
     }
 
     public async void LoginUser()
     {
-        var response = await _loginViewModel.Login();
-        string token = await _loginViewModel.GetAuthenticateJwt(response);
-        await localStorage.SetItemAsync("jwt_token", token);
-        stateService.SetUser(response);
-        nav.NavigateTo($"home");
+        logging = true;
+        try
+        {
+            var response = await _loginViewModel.Login();
+            string token = await _loginViewModel.GetAuthenticateJwt(response);
+            await localStorage.SetItemAsync("jwt_token", token);
+
+            stateService.SetUser(response);
+            nav.NavigateTo($"home");
+        }
+        catch
+        {
+            toastService.ShowError("Wrong Credentials.");
+        }
+        logging = false;
+        StateHasChanged();
+
     }
     public void register()
     {

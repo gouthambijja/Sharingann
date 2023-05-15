@@ -34,6 +34,7 @@ namespace ExpressTrackerDBAccessLayer.Repositories
         {
             try
             {
+                Console.WriteLine(category.Name);
                 var _Categories = await _CategoryDBContext.Categories.
                      Where(e => e.CategoryId == category.CategoryId).ToListAsync();
                 if (_Categories.Count == 0) return null;

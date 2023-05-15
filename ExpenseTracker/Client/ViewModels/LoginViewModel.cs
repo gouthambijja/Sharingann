@@ -38,7 +38,14 @@ namespace ExpenseTracker.Client.ViewModels
         {
             if (token == null) return null;
             token = token.Substring(0, token.Length);
-            return await _httpClient.GetFromJsonAsync<BLUser>($"user/getuserbyjwt?jwtToken={token}");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<BLUser>($"user/getuserbyjwt?jwtToken={token}");
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 

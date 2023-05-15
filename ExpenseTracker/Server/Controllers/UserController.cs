@@ -84,7 +84,7 @@ namespace ExpenseTracker.Server.Controllers
                 //
                 Subject = claimIdentity,
                 //expire in next x days
-                Expires = DateTime.UtcNow.AddSeconds(10),
+                Expires = DateTime.UtcNow.AddMinutes(10),
                 //which 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

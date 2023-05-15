@@ -10,20 +10,36 @@
 
 
 
-<div class="d-flex justify-content-between" style="width:100%">
-    <div class="" style="width:30%"></div>
-    <Transactions />
+<div class="container-fluid  min-vh-100">
+    <div class="row ">
+        <div class="col-md-3 mh-100 position-relative"><div class="position-fixed d-flex flex-column  shadow fixeddiv" ><AddTransactions Categories ="@stateService.Categories" /><Category Categories ="@stateService.Categories"/></div></div>
+        <div class=" col-md-9   transactions"><Transactions transactions ="@stateService.Transactions"/></div>
     </div>
+</div>
+@*<button type="button" class="btn btn-warning p-4 rounded-circle position-fixed" title="Add Transaction" style="bottom:2%;right:2%;"><i class="fa-thin fa-plus fa-2xl"></i></button>*@
+
 
 
 @code {
-
     protected override async Task OnInitializedAsync()
     {
+        stateService.OnStateChange += StateHasChanged;
         string token = await localStorage.GetItemAsync<string>("jwt_token");
         if (token == null) nav.NavigateTo("/login");
-        stateService.SetUser(await _homeViewModel.GetUserByJWT(token));
-        toastService.ShowInfo("home rendered!");
+        var user = await _homeViewModel.GetUserByJWT(token);
+        if (user == null)
+        {
+            toastService.ShowInfo("SessionEnded Please login again!");
+            nav.NavigateTo("/login");
+        }
+        else{
+            stateService.SetUser(user);
+            var Categories = await _homeViewModel.GetCategories(stateService.User.UserId);
+            stateService.SetCategory(Categories);
+            var Transactions = await _homeViewModel.GetTransactions(stateService.User.UserId);
+            stateService.SetTransaction(Transactions);
+            toastService.ShowInfo("home rendered!");
+        }
     }
     protected override async Task OnParametersSetAsync()
     {

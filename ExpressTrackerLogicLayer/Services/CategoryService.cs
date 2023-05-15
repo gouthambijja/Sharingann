@@ -42,7 +42,6 @@ namespace ExpressTrackerLogicLayer.Services
         {
             try
             {
-                category.CategoryId = Guid.NewGuid().ToString();
                 var mapper = AutoMappers.InitializeCategoryAutoMapper();
                 Category _category = mapper.Map<Category>(category);
                 _category = await _categoryRepository.Delete(_category);
@@ -57,16 +56,20 @@ namespace ExpressTrackerLogicLayer.Services
             {
                 var categories = await _categoryRepository.Get(UserId);
                 List<BLCategory> _BLCategories = new List<BLCategory>();
-                foreach (var category in categories)
+                if (categories != null)
                 {
-                    _BLCategories.Add(new BLCategory()
+                    foreach (var category in categories)
                     {
-                        CategoryId = category.CategoryId,
-                        Name = category.Name,
-                        UserId = category.UserId
-                    });
+                        _BLCategories.Add(new BLCategory()
+                        {
+                            CategoryId = category.CategoryId,
+                            Name = category.Name,
+                            UserId = category.UserId
+                        });
+                    }
+                    return _BLCategories;
                 }
-                return _BLCategories;
+                return null;
 
             }
             catch { return null; }

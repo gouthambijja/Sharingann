@@ -7,17 +7,18 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager nav
 
-<div class="container TransactionContainer " style="max-width: 65%;margin:0px;">
+<div class="container TransactionContainer w-65 m-auto">
     @if (stateService.Transactions != null)
     {
+        
         @for (i = 0; i < transactions.Count();)
         {
-            <div class="row mb-1">
+            <div class="row mb-2">
                 @for (int j = 0; i < transactions.Count() && j < 3; j++, i++)
                 {
-                    <div class="col-sm-4">
-                        <div class="card text-center">
-                            <div class="card-header">
+                    <div class="col-md-4">
+                        <div class="card text-center shadow">
+                            <div class="card-header bg-transparent" >
                                 @transactions[i].Name
                             </div>
                             <div class="card-body">
@@ -25,7 +26,7 @@
                                 <p class="card-text">@transactions[i].Category</p>
                                 <a href="#" class="btn btn-primary">@transactions[i].Description</a>
                             </div>
-                            <div class="card-footer text-muted">
+                            <div class="card-footer text-muted bg-transparent">
                                 @transactions[i].Date
                             </div>
                         </div>
@@ -39,20 +40,13 @@
 
 @code {
     public int i = 0;
-    public List<BLTransaction> transactions = new List<BLTransaction>();
+    [Parameter]
+    public List<BLTransaction> transactions { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        string token = await localStorage.GetItemAsync<string>("jwt_token");
-        if (token == null) nav.NavigateTo("/login");
-        stateService.SetUser(await _homeViewModel.GetUserByJWT(token));
+        stateService.OnStateChange += StateHasChanged;
 
-        if (stateService.User != null)
-        {
-            transactions = await _homeViewModel.GetTransactions(stateService.User.UserId);
-        }
-        stateService.SetTrasaction(transactions);
-        toastService.ShowInfo("Transactions!");
     }
     protected override async Task OnParametersSetAsync()
     {

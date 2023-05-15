@@ -22,6 +22,7 @@ namespace ExpressTrackerLogicLayer.Services
         {
             try
             {
+                Console.WriteLine("tranasactions!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 transaction.TransactionId = Guid.NewGuid().ToString();
                 var mapper = AutoMappers.InitializeTransactionAutoMapper();
                 Transaction _transaction = mapper.Map<Transaction>(transaction);
