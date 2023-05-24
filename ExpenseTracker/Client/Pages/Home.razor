@@ -2,47 +2,70 @@
 @using ExpenseTracker.Client.ViewModels;
 @using ExpressTrackerLogicLayer.Models;
 @inject IHomeViewModel _homeViewModel
-@inject StateContainerService stateService
+@*@inject StateContainerService stateService*@
+@*@inject CategoiresStateContainerService categoriesStateService*@
 @implements IDisposable
 @inject IToastService toastService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-@inject NavigationManager nav
-
+@inject NavigationManager nav;
+@inject IJSRuntime jsRuntime;
+@attribute [Authorize]
 
 
 <div class="container-fluid  min-vh-100">
+    <button type="button"
+            class="btn btn-danger position-fixed " style="bottom:20px;right:20px;border-radius:50%;z-index:100;" @onclick="alert" >
+        <i class="fas fa-arrow-up"></i>
+    </button>
     <div class="row ">
-        <div class="col-md-3 mh-100 position-relative"><div class="position-fixed d-flex flex-column  shadow fixeddiv" ><AddTransactions Categories ="@stateService.Categories" /><Category Categories ="@stateService.Categories"/></div></div>
-        <div class=" col-md-9   transactions"><Transactions transactions ="@stateService.Transactions"/></div>
+        <div class="col-md-3 mh-100 position-relative mb-3"><div class="position-fixed d-flex flex-column p-4 shadow fixeddiv"><AddTransactions Categories="@categoriesStateService.Categories" /><Category Categories="@categoriesStateService.Categories" User="@stateService.User"/></div></div>
+        <div class=" col-md-9   transactions"><Transactions transactions ="@stateService.Transactions" Categories="@categoriesStateService.Categories"/></div>
     </div>
 </div>
 @*<button type="button" class="btn btn-warning p-4 rounded-circle position-fixed" title="Add Transaction" style="bottom:2%;right:2%;"><i class="fa-thin fa-plus fa-2xl"></i></button>*@
 
-
-
 @code {
-    protected override async Task OnInitializedAsync()
+    [CascadingParameter(Name = "StateService")]
+    public StateContainerService stateService{ get; set; }
+    [CascadingParameter(Name = "CategoryStateService")]
+    public CategoiresStateContainerService categoriesStateService{ get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    public async void alert()
     {
-        stateService.OnStateChange += StateHasChanged;
-        string token = await localStorage.GetItemAsync<string>("jwt_token");
-        if (token == null) nav.NavigateTo("/login");
-        var user = await _homeViewModel.GetUserByJWT(token);
-        if (user == null)
-        {
-            toastService.ShowInfo("SessionEnded Please login again!");
-            nav.NavigateTo("/login");
-        }
-        else{
-            stateService.SetUser(user);
-            var Categories = await _homeViewModel.GetCategories(stateService.User.UserId);
-            stateService.SetCategory(Categories);
-            var Transactions = await _homeViewModel.GetTransactions(stateService.User.UserId);
-            stateService.SetTransaction(Transactions);
-            toastService.ShowInfo("home rendered!");
-        }
+        await jsRuntime.InvokeVoidAsync("scrollToTop");
     }
+    protected async override Task OnInitializedAsync()
+    {
+                stateService.OnStateChange += StateHasChanged;
+
+    }
+
     protected override async Task OnParametersSetAsync()
     {
+        //toastService.ShowInfo("HOME REndered");
+
+        try
+        {
+            var authState = await authenticationStateTask;
+            var _user = authState.User;
+
+            if (!_user.Identity.IsAuthenticated)
+            {
+                Console.WriteLine(_user.ToString());
+                Console.WriteLine("up");
+                nav.NavigateTo("/login");
+            }
+            else
+            {
+                
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
     }
     public void Dispose()
     {

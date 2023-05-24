@@ -1,0 +1,8 @@
+﻿.graph-container{
+    width:49%;
+}
+@media(max-width:768px){
+    .graph-container{
+        width:98%;
+    }
+}

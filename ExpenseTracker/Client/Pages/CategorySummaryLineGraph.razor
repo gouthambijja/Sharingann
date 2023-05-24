@@ -1,0 +1,78 @@
+﻿@using ExpressTrackerLogicLayer.Models;
+<h2 style="text-align:center;padding:1rem;">Category Wise Expenses</h2>
+@if (transactions != null && transactions.Count() != 0 && categories != null && categories.Count >= 0)
+{
+
+    <MudChart ChartType="ChartType.Line" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+}
+<div class="d-flex w-100 justify-content-end p-3">
+    <div class="d-flex ">
+        <div class="form-floating ">
+            <input type="number" min="1999" max="@DateTime.Now.Year" required @bind="year" class="form-control" id="year" placeholder="YYYY">
+
+            <label for="year">year</label>
+        </div>
+        <button class="btn btn-secondary mx-2" @onclick="(()=>{CreateCharts();})">submit</button>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public List<BLTransaction> transactions{ get; set; }
+    [Parameter]
+    public List<BLCategory> categories{ get; set; }
+    private int BarIndex = -1; //default value cannot be 0 -> first selectedindex is 0.
+    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
+    public List<ChartSeries> Series = new List<ChartSeries>();
+    public List<ChartSeries> BarSeries = new List<ChartSeries>();
+    public int year = DateTime.Now.Year;
+
+    public List<string> categoryNames = new() { "Investment", "Groceries", "Entertainment", "Transportation", "Unassigned", "Dining out" };
+
+    public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    public void CreateCharts()
+    {
+        //---------------------------------------------------------------------------------------------------------------------
+        
+        Series.RemoveRange(0, Series.Count());
+        foreach (var category in categoryNames)
+        {
+            var AvgTransactions = new double[12];
+            for (int month = 1; month <= 12; month++)
+            {
+                var category_transactions = transactions.Where(e => e.Category == category && e.Date.Year == year && e.Date.Month == month);
+                double TotalTransactionAmountOfMonth = 0;
+                int NoOfTransactions = 0;
+                foreach (var transaction in category_transactions)
+                {
+                    TotalTransactionAmountOfMonth += transaction.Amount;
+                    NoOfTransactions++;
+                }
+                double AvgTransactionAmountOfMonth = 0;
+                if (NoOfTransactions != 0)
+                {
+                    AvgTransactionAmountOfMonth = TotalTransactionAmountOfMonth / NoOfTransactions;
+                }
+                AvgTransactions[month - 1] = AvgTransactionAmountOfMonth;
+            }
+            Series.Add(new ChartSeries() { Name = category, Data = AvgTransactions });
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------
+
+    }
+    protected async override Task OnInitializedAsync()
+    {
+        foreach (var category in categories)
+        {
+            categoryNames.Add(category.Name);
+        }
+
+    }
+    protected override void OnParametersSet()
+    {
+
+        CreateCharts();    }
+
+
+
+}

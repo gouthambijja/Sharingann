@@ -1,12 +1,19 @@
-﻿@inject Blazored.LocalStorage.ILocalStorageService localStorage
+﻿@using System.Security.Claims;
+@using ExpenseTracker.Client.ViewModels;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager nav
+@inject IHomeViewModel _homeViewModel
+@inject StateContainerService stateService
+@inject IToastService toastService
+@inject CategoiresStateContainerService categoriesStateService
 <nav class="navbar navbar-expand-md mb-3 navbar-primary bg-primary shadow-sm sticky-top bg-gradient px-3">
     <div class="container-fluid">
         <a class="navbar-brand text-light" href="">ExpenseTracker</a>
-        <button class="navbar-toggler btn-light @NavButtonCssClass" @onclick="ToggleNavMenu" type="button" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span><i class="fa-thin fa-bars"></i></span>
+        <button class="navbar-toggler btn-primary @NavButtonCssClass" @onclick="ToggleNavMenu" type="button" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="border:none !important">
+            <span><i class="fa-solid fa-bars"></i></span>
         </button>
         <div class="collapse navbar-collapse @NavBarCssClass " id="navbarCollapse" @onclick="ToggleNavMenu">
+            <div class="d-flex justify-content-between w-100">
             <ul class="navbar-nav d-flex justify-content-center align-items-center h6 small">
                 <li class="OnHoverDecorate pointer text-light px-3" @onclick="NavigateToHome">
                     Home
@@ -18,15 +25,21 @@
                     Profile
                 </li>
             </ul>
+              <div>  <b>@Username</b><span class="text-light pointer " @onclick="logout"> Logout <i class="fa fa-sign-out" aria-hidden="true"></i></span>
+                </div>
+            </div>
         </div>
-        <span class="text-light pointer" @onclick="logout">logout <i class="fa fa-sign-out" aria-hidden="true"></i></span>
     </div>
 </nav>
 
 @code {
+    [CascadingParameter] public IModalService _FilterModal { get; set; }
+    [Parameter]
+    public List<Claim> UserClaims{ get; set; }
     private bool collapseNavMenu = true;
     private string? NavBarCssClass => collapseNavMenu ? null : "show";
     private string? NavButtonCssClass => collapseNavMenu ? "collapsed" : null;
+    private string Username{ get; set; }
 
     private void ToggleNavMenu()
     {
@@ -41,6 +54,11 @@
     {
 
     }
+    protected override void OnParametersSet()
+    {
+        Username = UserClaims.Where(u => u.Type == ClaimTypes.Name).First().Value;
+    }
+
     private void NavigateToHome()
     {
         nav.NavigateTo("/home");
@@ -52,6 +70,63 @@
     private void NavigateToProfile()
     {
         nav.NavigateTo("/profile");
+    }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    
+    protected async override Task OnInitializedAsync()
+    {
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //try
+        //{
+        //    var authState = await authenticationStateTask;
+        //    var _user = authState.User;
+
+        //    if (!_user.Identity.IsAuthenticated)
+        //    {
+        //        Console.WriteLine(_user.ToString());
+        //        Console.WriteLine("up");
+        //        //nav.NavigateTo("/login");
+        //    }
+        //    else
+        //    {
+        //        stateService.OnStateChange += StateHasChanged;
+        //        string token = await localStorage.GetItemAsync<string>("jwt_token");
+        //        Console.WriteLine(token);
+        //        if (token == null)
+        //        {
+        //            nav.NavigateTo("/login");
+        //        }
+        //        var user = await _homeViewModel.GetUserByJWT(token);
+        //        if (user == null)
+        //        {
+
+        //            toastService.ShowInfo("SessionEnded Please login again!");
+        //            Console.WriteLine("down");
+        //            nav.NavigateTo("/login");
+        //        }
+        //        else
+        //        {
+        //            stateService.SetUser(user);
+        //            var Categories = await _homeViewModel.GetCategories(stateService.User.UserId);
+        //            categoriesStateService.SetCategory(Categories);
+        //            var Transactions = await _homeViewModel.GetTransactions(stateService.User.UserId);
+        //            stateService.SetTransaction(Transactions);
+        //        }
+
+        //    }
+        //}
+        //catch (System.Exception ex)
+        //{
+        //    Console.WriteLine(ex);
+        //}
+        //toastService.ShowInfo("HOME REndered");
+
     }
 }
 

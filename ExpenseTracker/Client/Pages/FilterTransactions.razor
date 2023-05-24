@@ -1,0 +1,75 @@
+﻿@using ExpenseTracker.Client.ViewModels;
+@using ExpressTrackerLogicLayer.Models;
+@inject IHomeViewModel _homeViewModel
+@inject StateContainerService stateService
+@inject IToastService toastService
+<div class="d-flex w-100 justify-content-center  ">
+    <EditForm Model="_homeViewModel" class=" rounded p-5 bg-white" OnSubmit="@ApplyFilter">
+
+        <div class="form-floating mb-3 ">
+            <input type="text"  class="form-control" @bind="_homeViewModel.FilterName" id="TransactionName" placeholder="Transaction Name">
+            <label for="TransactionName">Name</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text"  class="form-control" @bind="_homeViewModel.FilterDescription" id="TransactionDescription" placeholder="Description">
+            <label for="TransactionDescription">Description</label>
+        </div>
+        <select class="form-select mb-3 " @bind="_homeViewModel.FilterCategory">
+            <option value="" selected>None</option>
+            <option value="Investment">Investment</option>
+            <option value="Groceries">Groceries</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Unassigned">Unassigned</option>
+            <option value="Dining out">Dining out</option>
+
+
+            @if (Categories != null)
+            {
+                @foreach (var item in Categories)
+                {
+                    <option value="@item.Name">@item.Name</option>
+                }
+            }
+
+        </select>
+        <div class="form-floating mb-3">
+            <input type="date" class="form-control" @bind="_homeViewModel.FilterStartDate" id="TransactionDate" placeholder="Date">
+            <label for="TransactionDate">Date</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="date" class="form-control" @bind="_homeViewModel.FilterEndDate" id="TransactionDate" placeholder="Date">
+            <label for="TransactionDate">Date</label>
+        </div>
+        <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary me-2">Apply Filter </button>
+        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+        </div><div class="text-center m-3">
+        </div>
+
+    </EditForm>
+</div>
+@code {
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+    [Parameter]
+    public List<BLCategory> Categories { get; set; }
+    protected override void OnInitialized()
+    {
+        _homeViewModel.FilterStartDate = DateTime.Parse("2000-01-01");
+        _homeViewModel.FilterEndDate = DateTime.Now;
+        _homeViewModel.FilterCategory = "";
+        _homeViewModel.FilterDescription = "";
+        _homeViewModel.FilterName = "";
+    }
+    public async void ApplyFilter()
+    {
+        var transactions = await _homeViewModel.GetFilteredTransactions(stateService.User.UserId);
+        stateService.SetTransaction(transactions);
+        toastService.ShowSuccess("Filter Applied ;)");
+        await BlazoredModal.CloseAsync();
+    }
+    public async void CloseModal()
+    {
+        await BlazoredModal.CloseAsync();
+    }
+}

@@ -31,6 +31,23 @@ namespace ExpressTrackerDBAccessLayer.Repositories
             }
         }
 
+        public async Task<bool> ChangePassword(string Username, string oldpassword, string newPassword)
+        {
+            try
+            {
+                var users = await _UserDBContext.Users.Where(e => e.Username == Username && e.Password == oldpassword).ToListAsync();
+                var user = users[0];
+                if (user == null) { return false; }
+                user.Password = newPassword ;
+                await _UserDBContext.SaveChangesAsync();
+                return true ;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<User> Delete(string UserId)
         {
             throw new NotImplementedException();

@@ -29,6 +29,11 @@ namespace ExpressTrackerLogicLayer.Services
             return user;
         }
 
+        public Task<bool> ChangePassword(string Username, string OldPassword, string NewPassword)
+        {
+            return _userRepository.ChangePassword(Username, OldPassword, NewPassword);  
+        }
+
         public Task<BLUser> Delete(string UserId)
         {
             throw new NotImplementedException();

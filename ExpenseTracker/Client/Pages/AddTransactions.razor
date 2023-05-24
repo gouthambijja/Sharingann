@@ -1,30 +1,39 @@
-﻿@using ExpenseTracker.Client.ViewModels;
+﻿@using IronPdf;
+@using IronSoftware.Drawing;
+@using ExpenseTracker.Client.ViewModels;
 @using ExpressTrackerLogicLayer.Models;
+@using System.Text.Json;
 @inject ITransactionViewModel _transactionViewModel
 @inject StateContainerService stateService
+@inject IToastService toastService
 
-
- <EditForm Model="_transactionViewModel" class=" shadow p-5 rounded " OnSubmit="@AddTransaction">
+ <EditForm Model="_transactionViewModel" class="   rounded " OnSubmit="@AddTransaction">
 
         <div class="form-floating mb-3 ">
             <input type="text" required class="form-control" @bind= "_transactionViewModel.Name" @bind:event="onchange"  id="TransactionName" placeholder="Transaction Name">
             <label for="TransactionName">Name</label>
         </div>
+    <div class="form-floating mb-3">
+        <input type="date" class="form-control" @bind="_transactionViewModel.Date" id="TransactionDate" placeholder="Date">
+        <label for="TransactionDate">Date</label>
+    </div>
         <div class="form-floating mb-3">
             <input type="number" min="1" step="any"  required class="form-control" @bind="_transactionViewModel.Amount" id="TransactionAmount" placeholder="Amount">
             <label for="TransactionAmount">Amount</label>
         </div>
         <div class="form-floating mb-3">
-            <input type="text" class="form-control" @bind="_transactionViewModel.Description" id="TransactionDescription" placeholder="Description">
+            <input type="text" required class="form-control" @bind="_transactionViewModel.Description" id="TransactionDescription" placeholder="Description">
             <label for="TransactionDescription">Description</label>
         </div>
-        <select class="form-select mb-3 " @bind="_transactionViewModel.Category"  >
-            <option selected>Open this select menu</option>
+        <select class="form-select mb-3 " @bind="_transactionViewModel.Category" required >
+            <option  value="Investment" selected >Investment</option>
         <option value="Groceries">Groceries</option>
         <option value="Transportation">Transportation</option>
         <option value="Entertainment">Entertainment</option>
         <option value="Unassigned">Unassigned</option>
         <option value="Dining out">Dining out</option>
+
+        
         @if (Categories != null)
         {
             @foreach (var item in Categories)
@@ -39,15 +48,77 @@
         </div>
 
     </EditForm>
+<div class="d-flex align-items-center position-relative mb-3" >
+    <div class="border-top w-100  ">
+    </div>
+    <div class="d-inline px-3 position-absolute" style="background:#fff;top:50%;left:50%;transform: translateX(-50%) translateY(-50%); text-align:center;">or</div>
+</div>
+
+    <form class="mb-3" @onsubmit="AddListTransactions">
+    @if (bClearInputFile)
+    {
+        <InputFile OnChange="@LoadTransactions" required accept="text/plain , application/json  " />
+    }
+    <button class="btn btn-primary mt-3" type="submit">Upload pdf</button>
+    </form>
 @code {
 
+    private bool bClearInputFile = true;
+    List<BLTransaction> _transactions = new List<BLTransaction>();
+    public string reader = "";
     [Parameter]
     public List<BLCategory> Categories{ get; set; }
+    protected override void OnInitialized()
+    {
+        _transactionViewModel.Date = DateTime.Now;
+        _transactionViewModel.Category = "Category";
+    }
     public async void AddTransaction()
     {
         _transactionViewModel.UserId = stateService.User.UserId;
         _transactionViewModel.TransactionId = "";
+        if(_transactionViewModel.Category == "")
+        {
+            _transactionViewModel.Category = "Investment";
+        }
         var transaction = await _transactionViewModel.AddTransaction();
         stateService.AddTrasaction(transaction);
+    }
+    public async void LoadTransactions(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        try
+        {
+            reader = await new StreamReader(file.OpenReadStream()).ReadToEndAsync();
+            _transactions = JsonSerializer.Deserialize<List<BLTransaction>>(reader);
+            for (int i = 0; i < _transactions.Count(); i++)
+            {
+                _transactions[i].UserId = stateService.User.UserId;
+            }
+            Console.WriteLine(_transactions.Count());
+        }
+        catch
+        {
+            toastService.ShowWarning("Invalid json format");
+            toastService.ShowInfo("Transaction Upload failed :(");
+            ClearInputFile();
+        }
+    }
+    public async void AddListTransactions()
+    {
+        Console.WriteLine(_transactions.Count());
+        _transactions = await _transactionViewModel.AddTransactions(_transactions);
+        stateService.AddTrasactions(_transactions);
+        _transactions = new List<BLTransaction>();
+        ClearInputFile();
+    }
+
+    //Call ClearInputFile whenever value must be cleared.
+    private void ClearInputFile()
+    {
+        bClearInputFile = false;
+        StateHasChanged();
+        bClearInputFile = true;
+        StateHasChanged();
     }
 }

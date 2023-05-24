@@ -7,6 +7,9 @@ using BlazorApp2.Client;
 using BlazorApp2.Client.handlers;
 using ExpenseTracker.Client.ViewModels;
 using Blazored.Toast;
+using MudBlazor.Services;
+using Blazored.Modal;
+
 
 
 
@@ -16,6 +19,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddMudServices();
+builder.Services.AddBlazoredModal();
+
+
+
 
 
 builder.Services.AddHttpClient<ILoginViewModel, LoginViewModel>
@@ -36,6 +44,9 @@ builder.Services.AddHttpClient<ITransactionViewModel, TransactionViewModel>
 builder.Services.AddHttpClient<ICategoryViewModel, CategoryViewModel>
                ("FetchDataViewModelClient", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
                .AddHttpMessageHandler<CustomAuthorizationHandler>();
+builder.Services.AddHttpClient<IProfileViewModel, ProfileViewModel>
+               ("FetchDataViewModelClient", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
+               .AddHttpMessageHandler<CustomAuthorizationHandler>();
 
 
 
@@ -44,6 +55,8 @@ builder.Services.AddBlazoredToast();
 
 builder.Services.AddTransient<CustomAuthorizationHandler>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddSingleton<StateContainerService>();
+builder.Services.AddSingleton<CategoiresStateContainerService>();
 await builder.Build().RunAsync();

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.Intrinsics.Arm;
 using System.Security.Claims;
 using System.Text;
 
@@ -66,7 +67,11 @@ namespace ExpenseTracker.Server.Controllers
         {
             return await _userService.GetById(Username);
         }
-
+        [HttpPut("UpdatePassword")]
+        public async Task<bool> UpdatePassword(ChangePassword cp)
+        {
+            return await _userService.ChangePassword(cp.Username,Utility.Encrypt(cp.OldPassword), Utility.Encrypt(cp.NewPassword));
+        }
 
         //jwt methods//---------------------------------
         private string GenerateJwtToken(BLUser user)
@@ -84,7 +89,7 @@ namespace ExpenseTracker.Server.Controllers
                 //
                 Subject = claimIdentity,
                 //expire in next x days
-                Expires = DateTime.UtcNow.AddMinutes(10),
+                Expires = DateTime.UtcNow.AddDays(1),
                 //which 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -106,6 +111,48 @@ namespace ExpenseTracker.Server.Controllers
         [HttpGet("getuserbyjwt")]
         public async Task<BLUser> GetUserByJwt(string jwtToken)
         {
+
+            try
+            {
+                //getting the secret key
+                string secretKey = _config["Authentication:JWTSettings:SecretKey"];
+                var key = Encoding.ASCII.GetBytes(secretKey);
+
+                //preparing the validation parameters
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+                var tokenHandler = new JwtSecurityTokenHandler();
+                SecurityToken securityToken;
+                
+                     Console.WriteLine(jwtToken);
+                //validationg token
+                var principle = tokenHandler.ValidateToken(jwtToken, tokenValidationParameters, out securityToken);
+                var jwtSecurityToken = (JwtSecurityToken)securityToken;
+
+                if (jwtSecurityToken != null && jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    var user = await _userService.GetUserById(userId);
+                    return user;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+            return null;
+        }
+        [HttpPost("getuserbyjwt")]
+        public async Task<BLUser> GetUserByJwtPost(string jwtToken)
+        {
+            Console.Write("hello");
+
             try
             {
                 //getting the secret key

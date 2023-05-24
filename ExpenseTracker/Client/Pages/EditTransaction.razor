@@ -1,0 +1,85 @@
+﻿@using ExpenseTracker.Client.ViewModels;
+@using ExpressTrackerLogicLayer.Models;
+@inject StateContainerService stateService
+@inject ITransactionViewModel _TransactionViewModel
+@inject IToastService toastService
+
+<div class=" vw-100 d-flex justify-content-center align-content-center">
+    <EditForm Model="_TransactionViewModel" class="rounded bg-white p-5" OnSubmit="UpdateTransaction" >
+        <div class="form-floating mb-3 ">
+            <input type="text" required class="form-control" @bind="transaction.Name" @bind:event="onchange" id="TransactionName" placeholder="Transaction Name">
+            <label for="TransactionName">Name</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="date" class="form-control" @bind="transaction.Date" id="TransactionDate" placeholder="Date">
+            <label for="TransactionDate">Date</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="number" min="1" step="any" required class="form-control" @bind="transaction.Amount" id="TransactionAmount" placeholder="Amount">
+            <label for="TransactionAmount">Amount</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="text" required class="form-control" @bind="transaction.Description" id="TransactionDescription" placeholder="Description">
+            <label for="TransactionDescription">Description</label>
+        </div>
+        <select class="form-select mb-3 " @bind="transaction.Category">
+            <option selected>Investment</option>
+            <option value="Groceries">Groceries</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Unassigned">Unassigned</option>
+            <option value="Dining out">Dining out</option>
+
+
+            @if (Categories != null)
+            {
+                @foreach (var item in Categories)
+                {
+                    <option value="@item.Name">@item.Name</option>
+                }
+            }
+
+        </select>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button class="btn btn-secondary" type="button" @onclick="CloseModal">Cancel</button>
+        <div class="text-center m-3">
+        </div>
+        </EditForm>
+
+    </div>
+@code {
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+    [Parameter]
+    public BLTransaction transaction{ get; set; }
+    [Parameter]
+    public List<BLCategory> Categories{ get; set; }
+
+    
+
+    public async Task UpdateTransaction()
+    {
+
+        _TransactionViewModel.TransactionId = transaction.TransactionId;
+        _TransactionViewModel.Name = transaction.Name;
+        _TransactionViewModel.Amount = transaction.Amount;
+        _TransactionViewModel.Category = transaction.Category;
+        _TransactionViewModel.Date = transaction.Date;
+        _TransactionViewModel.Description = transaction.Description;
+        _TransactionViewModel.UserId = "";
+        var _editedTransaction = await _TransactionViewModel.EditTransaction();
+        if (_editedTransaction != null)
+        {
+            stateService.UpdateTransaction(_editedTransaction);
+            toastService.ShowSuccess("Transaction Edited");
+            await BlazoredModal.CloseAsync();
+        }
+        else
+        {
+            toastService.ShowSuccess("Transaction Edit Failed!");
+        }
+    }
+    public async Task CloseModal()
+    {
+        await BlazoredModal.CloseAsync();
+    }
+}

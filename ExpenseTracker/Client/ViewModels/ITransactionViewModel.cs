@@ -14,5 +14,8 @@ namespace ExpenseTracker.Client.ViewModels
         public string? UserId { get; set; }
 
         Task<BLTransaction> AddTransaction();
+        Task<List<BLTransaction>> AddTransactions(List<BLTransaction> _transactions);
+        Task<BLTransaction> EditTransaction();
+        Task<bool> DeleteTransaction(string transactionId);
     }
 }

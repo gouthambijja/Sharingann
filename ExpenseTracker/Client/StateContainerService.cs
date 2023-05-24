@@ -1,4 +1,5 @@
-﻿using ExpressTrackerLogicLayer.Models;
+﻿using ExpressTrackerDBAccessLayer.Models;
+using ExpressTrackerLogicLayer.Models;
 
 namespace ExpenseTracker.Client
 {
@@ -9,7 +10,6 @@ namespace ExpenseTracker.Client
         /// </summary>
         public BLUser User { get; set; }
         public List<BLTransaction> Transactions = new List<BLTransaction>();
-        public List<BLCategory> Categories= new List<BLCategory>();
         /// <summary>
         /// The event that will be raised for state changed
         /// </summary>
@@ -29,25 +29,72 @@ namespace ExpenseTracker.Client
             Transactions.Insert(0, _transaction);
             NotifyStateChanged();
         }
-        public void SetCategory(List<BLCategory> _Categories)
+        public void AddTrasactions(List<BLTransaction> _transactions)
         {
-            if(_Categories!=null)
-            Categories = _Categories;
+            Console.WriteLine(_transactions.Count());
+            _transactions.AddRange(Transactions);
+            Console.WriteLine(_transactions.Count());
+            Transactions = _transactions;
             NotifyStateChanged();
         }
-        public void DeleteCategory(BLCategory _category)
+        public void UpdateTransaction(BLTransaction _transaction)
         {
-            Categories.Remove(_category); NotifyStateChanged();
+            Console.WriteLine(Transactions.Count());
+            var transaction = Transactions.Where(e => e.TransactionId == _transaction.TransactionId).First();
+            Transactions.Remove(transaction);
+            Console.WriteLine(Transactions.Count());
+            Transactions.Insert(0, _transaction);
+            NotifyStateChanged();
         }
-        public void AddCategory(BLCategory category)
+        public void DeleteTransaction(BLTransaction _transaction)
         {
-            Categories.Add(category);
+            Transactions.Remove(_transaction);
             NotifyStateChanged();
         }
         public void SetTransaction(List<BLTransaction> _transactions)
         {
-            if(_transactions!=null)
-            Transactions = _transactions;
+            if (_transactions != null)
+                Transactions = _transactions;
+            NotifyStateChanged();
+        }
+        public void SortByDateAscending()
+        {
+            Transactions.Sort((t1, t2) => t1.Date.CompareTo(t2.Date));
+            NotifyStateChanged();
+        }
+        public void SortByDateDescending()
+        {
+            Transactions.Sort((t1, t2) => t2.Date.CompareTo(t1.Date));
+            NotifyStateChanged();
+        }
+        public void SortByNameAscending()
+        {
+            Transactions.Sort((t1, t2) => t1.Name.CompareTo(t2.Name));
+            NotifyStateChanged();
+        }
+        public void SortByNameDescending()
+        {
+            Transactions.Sort((t1, t2) => t2.Name.CompareTo(t1.Name));
+            NotifyStateChanged();
+        }
+        public void SortByCategoryAscending()
+        {
+            Transactions.Sort((t1, t2) => t1.Category.CompareTo(t2.Category));
+            NotifyStateChanged();
+        }
+        public void SortByCategoryDescending()
+        {
+            Transactions.Sort((t1, t2) => t2.Category.CompareTo(t1.Category));
+            NotifyStateChanged();
+        }
+        public void SortByDescriptionAscending()
+        {
+            Transactions.Sort((t1, t2) => t1.Description.CompareTo(t2.Description));
+            NotifyStateChanged();
+        }
+        public void SortByDescriptionDescending()
+        {
+            Transactions.Sort((t1, t2) => t2.Description.CompareTo(t1.Description));
             NotifyStateChanged();
         }
 

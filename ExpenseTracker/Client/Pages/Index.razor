@@ -1,10 +1,18 @@
 ﻿@page "/"
 @layout EmptyLayout
 @inject NavigationManager nav
-
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
 @code{
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
-        nav.NavigateTo("/login");
+        string token = await localStorage.GetItemAsync<string>("jwt_token");
+        if (token == null)
+        {
+            nav.NavigateTo("/login");
+        }
+        else
+        {
+            nav.NavigateTo("/home");
+        }
     }
 }

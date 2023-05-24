@@ -8,6 +8,7 @@ namespace ExpenseTracker.Client.ViewModels
 {
     public class LoginViewModel:ILoginViewModel
     {
+        private string HashSalt = "$2a$10$xnQs0sKkOlMyMhgeSiCuuO";
         [Required]
         public string? Username { get ; set; }
         [Required]
@@ -21,7 +22,8 @@ namespace ExpenseTracker.Client.ViewModels
         }
         public async Task<BLUser> Login()
         {
-            
+
+            this.Password = BCrypt.Net.BCrypt.HashPassword(this.Password,HashSalt);
             var _user = await _httpClient.PostAsJsonAsync("/user/login", this);
             var user = await _user.Content.ReadFromJsonAsync<BLUser>();
             return user;
@@ -38,9 +40,11 @@ namespace ExpenseTracker.Client.ViewModels
         {
             if (token == null) return null;
             token = token.Substring(0, token.Length);
+            Console.WriteLine(token + " -- Login");
+
             try
             {
-                return await _httpClient.GetFromJsonAsync<BLUser>($"user/getuserbyjwt?jwtToken={token}");
+                return await _httpClient.GetFromJsonAsync<BLUser>($"/User/getuserbyjwt?jwtToken={token}");
             }
             catch
             {

@@ -13,6 +13,8 @@ namespace ExpenseTracker.Client.ViewModels
         public string Username { get; set; }
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
+        private string HashSalt = "$2a$10$xnQs0sKkOlMyMhgeSiCuuO";
+
 
 
         public bool ComparePassword()
@@ -28,6 +30,7 @@ namespace ExpenseTracker.Client.ViewModels
 
         public async Task<bool> RegisterUser()
         {
+            this.Password = BCrypt.Net.BCrypt.HashPassword(this.Password,HashSalt);
             var response = await _httpClient.PostAsJsonAsync("/User/Register", this);
             return await response.Content.ReadFromJsonAsync<bool>();
         }

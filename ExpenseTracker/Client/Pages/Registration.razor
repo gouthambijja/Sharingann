@@ -8,7 +8,7 @@
 
 
 <div class="vw-100 vh-100 d-flex justify-content-center align-items-center ">
-    <EditForm Model="_registerViewModel" class="vw-25 vh-30  border border-primary p-5 rounded" OnSubmit="@Register">
+    <EditForm Model="_registerViewModel" class="vw-25 vh-30  shadow p-5 rounded" OnSubmit="@Register">
         <div class="form-floating mb-3 ">
             <input type="Username" required class="form-control" @bind= "_registerViewModel.Username" @bind:event="onchange" @onblur="IsValidUsername" id="floatingInput" placeholder="Username">
             <label for="floatingInput">Username</label>
@@ -24,7 +24,7 @@
         </div>
         <button type="submit" class="btn btn-primary" >Register</button>
         <div class="text-center m-3">
-            <p>Already had an account? <a @onclick="Login" class=".text-primary">Login</a></p>            
+            <p>Already had an account? <a @onclick="Login" class="text-primary">Login</a></p>            
         </div>
 
     </EditForm>

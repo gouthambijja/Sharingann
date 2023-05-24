@@ -10,7 +10,9 @@ html, body {
 .body::-webkit-scrollbar {
     display: none !important;
 }
-
+.my-custom-modal-class{
+    margin-top:100px !important;
+}
 /* Hide scrollbar for IE, Edge and Firefox */
 .body {
     -ms-overflow-style: none !important; /* IE and Edge */

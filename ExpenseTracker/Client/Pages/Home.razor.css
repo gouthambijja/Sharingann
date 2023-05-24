@@ -1,6 +1,9 @@
 ﻿.fixeddiv{
     width:calc( 100vw / 4 ) ;
 }
+div.button.btn-back-to-top {
+    border:10px solid black  !important;
+}
 @media(max-width:768px) {
     .fixeddiv {
         position:relative !important;

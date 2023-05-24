@@ -10,7 +10,6 @@
 @inject IToastService toastService
 
 
-
 <div class="vw-100 vh-100 d-flex justify-content-center align-items-center ">
     <EditForm Model="@_loginViewModel" class="vw-25 vh-30  shadow p-5 rounded " OnSubmit="@LoginUser">
         <div class="form-floating mb-3 ">
@@ -32,8 +31,8 @@
 
 
         <div class="text-center m-3">
-            <p>Forget password? <a href="#!">Reset</a></p>
-            <p>Not a member? <a @onclick="register" class="pointer">Register</a></p>
+            <p>Forget password? <a href="#!" class="pointer text-primary">Reset</a></p>
+            <p>Not a member? <a @onclick="register" class="pointer text-primary">Register</a></p>
             <p>or sign up with:</p>
             <button type="button" class="btn btn-link btn-floating mx-1">
                 <i class="fab fa-facebook-f"></i>
@@ -57,8 +56,8 @@
 
 </div>
 @code {
-    
     public bool logging = false;
+    public BLUser user;
     protected async override Task OnInitializedAsync()
     {
         stateService.OnStateChange += StateHasChanged;
@@ -67,24 +66,27 @@
         {
             try
             {
-                var user = await _loginViewModel.GetUserByJWT(token);
+                user = await _loginViewModel.GetUserByJWT(token);
             }
             catch
             {
-
+                Console.WriteLine("ehlo");
+                Console.WriteLine("ehlo");
             }
-            //if (user != null)
-            //{
-            //    stateService.SetUser(user);
-            //    nav.NavigateTo("home");
-            //    toastService.ShowInfo("Login Rendered");
-            //}
+            if (user != null)
+            {
+                stateService.SetUser(user);
+                nav.NavigateTo("home");
+                toastService.ShowInfo("Login Rendered");
+                
+            }
         }
     }
 
     public async void LoginUser()
     {
         logging = true;
+        StateHasChanged();
         try
         {
             var response = await _loginViewModel.Login();
@@ -92,6 +94,7 @@
             await localStorage.SetItemAsync("jwt_token", token);
 
             stateService.SetUser(response);
+            Console.WriteLine("hey!!");
             nav.NavigateTo($"home");
         }
         catch

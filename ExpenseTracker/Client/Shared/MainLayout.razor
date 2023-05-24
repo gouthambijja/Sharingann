@@ -5,30 +5,49 @@
 @inherits LayoutComponentBase
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager nav
+@inject IHomeViewModel _homeViewModel
+@inject StateContainerService stateService
+@inject CategoiresStateContainerService categoriesStateService
+@inject IToastService toastService
 
 <div class="">
-    <NavMenu />
-    <main>
-        @Body
-    </main>
-    <MudThemeProvider />
-    <MudDialogProvider />
-    <MudSnackbarProvider />
-    <PageFooter/>
-    <BlazoredToasts Position="ToastPosition.BottomRight"
-                    Timeout="10"
-                    IconType="IconType.FontAwesome"
-                    SuccessClass="success-toast-override"
-                    SuccessIcon="fa fa-thumbs-up"
-                    ErrorIcon="fa fa-bug"
-                    ShowProgressBar="true" />
+    <AuthorizeView>
+        <Authorized>
+            <NavMenu UserClaims="@context.User.Claims.ToList()" />
+            <main>
+                <CascadingValue Value="@stateService" Name="StateService">
+                    <CascadingValue Value="@categoriesStateService" Name="CategoryStateService">
+                        @Body
+                    </CascadingValue>
+                </CascadingValue>
+
+                <MudThemeProvider />
+                <MudDialogProvider />
+                <MudSnackbarProvider />
+            </main>
+
+            <PageFooter />
+            <BlazoredToasts Position="ToastPosition.BottomRight"
+                            Timeout="10"
+                            IconType="IconType.FontAwesome"
+                            SuccessClass="success-toast-override"
+                            SuccessIcon="fa fa-thumbs-up"
+                            ErrorIcon="fa fa-bug"
+                            ShowProgressBar="true" />
+        </Authorized>
+        <Authorizing>
+            <div class="vw-100 vh-100 d-flex justify-content-center align-items-center">
+                <div class="spinner-border text-primary center" role="status">
+                </div>
+                <div class="text-primary px-3">Authenticating...</div>
+            </div>
+        </Authorizing>
+        <NotAuthorized>
+            <Index />
+        </NotAuthorized>
+    </AuthorizeView>
 </div>
 @code {
-
-
-
-
-
     protected override async void OnInitialized()
     {
         string token = await localStorage.GetItemAsync<string>("jwt_token");
@@ -36,6 +55,28 @@
         {
             nav.NavigateTo("/login");
         }
-        
+        var user = await _homeViewModel.GetUserByJWT(token);
+        if (user == null)
+        {
+
+            toastService.ShowInfo("SessionEnded Please login again!");
+            Console.WriteLine("down");
+            nav.NavigateTo("/login");
+        }
+        else
+        {
+            if (stateService.User == null)
+            {
+                stateService.SetUser(user);
+                var Categories = await _homeViewModel.GetCategories(stateService.User.UserId);
+                categoriesStateService.SetCategory(Categories);
+                var Transactions = await _homeViewModel.GetTransactions(stateService.User.UserId);
+                stateService.SetTransaction(Transactions);
+            }
+        }
+
     }
+
+
+    // rest of the code
 }

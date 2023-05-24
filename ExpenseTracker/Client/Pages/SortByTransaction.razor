@@ -1,0 +1,109 @@
+﻿@inject StateContainerService stateService
+<div class="d-flex w-100 justify-content-center  " style="margin-top:-3rem">
+    <form class=" bg-white p-5 " style="min-width:max-content" @onsubmit="SortTransactions">
+        <label for="DateAscending" class="p-3 mb-2 shadow  w-100">
+            <input type="radio" id="DateAscending"  name="sortBy" @bind="SortByDateA" >
+            DateAscending
+        </label><br>
+        <label for="DateDescending" class="p-3 mb-2 shadow  w-100">
+            <input type="radio" id="DateDescending"  name="sortBy" @bind="SortByDateD">
+            DateDescending
+        </label><br>
+
+        <label for="CategoryAscending" class="p-3 mb-2 shadow  w-100">
+
+            <input type="radio" id="CategoryAscending"  name="sortBy" @bind="SortByCategoryA">
+            CategoryAscending
+        </label><br>
+        <label for="CategoryDescending" class="p-3 mb-2 shadow  w-100">
+            <input type="radio" id="CategoryDescending"  name="sortBy" @bind="SortByCategoryD">
+            CategoryDescending
+        </label><br>
+        <label for="NameAscending" class="p-3 mb-2 shadow  w-100">
+            <input type="radio" id="NameAscending"  name="sortBy" @bind="SortByNameA">
+            NameAscending
+        </label><br>
+        <label for="NameDescending" class="p-3 mb-2 shadow  w-100">
+            <input type="radio" id="NameDescending"  name="sortBy" @bind="SortByNameD">
+            NameDescending
+        </label><br>
+        <label for="DescriptionAscending" class="p-3 mb-2 shadow  w-100">
+            <input type="radio" id="DescriptionAscending"  name="sortBy" @bind="SortByDescriptionA">
+            DescriptionDescending
+        </label><br>
+        <label for="DescriptionDescending" class="p-3 mb-2 shadow  w-100">
+            <input type="radio" id="DescriptionDescending"  name="sortBy" @bind="SortByDescriptionD">
+            DescriptionDescending
+        </label><br>
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-primary me-2 ">Apply</button>
+            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+            
+        </div>
+    </form>
+</div>
+
+@code {
+    [CascadingParameter] BlazoredModalInstance BlazoredModal { get; set; } = default!;
+    private string SortByDateA { get; set; }
+    private string SortByDateD {get;set;}
+    private string SortByNameA {get;set;}
+    private string SortByNameD {get;set;}
+    private string SortByCategoryA {get;set;}
+    private string SortByCategoryD {get;set;}
+    private string SortByDescriptionA {get;set;}
+    private string SortByDescriptionD {get;set;}
+
+    public async void CloseModal()
+    {
+        await BlazoredModal.CloseAsync();
+    }
+    public async void SortTransactions()
+    {
+        if(SortByDateA == "on")
+        {
+            stateService.SortByDateAscending();
+            await BlazoredModal.CloseAsync();
+        }    
+        else if(SortByDateD == "on")
+        {
+            stateService.SortByDateDescending();
+            await BlazoredModal.CloseAsync();
+        }
+        else if(SortByNameA == "on")
+        {
+            stateService.SortByNameAscending();
+            await BlazoredModal.CloseAsync();
+        }
+        else if(SortByNameD == "on")
+        {
+            stateService.SortByNameDescending();
+            await BlazoredModal.CloseAsync();
+        }
+        else if(SortByCategoryA == "on")
+        {
+            stateService.SortByCategoryAscending();
+            await BlazoredModal.CloseAsync();
+        }
+        else if(SortByCategoryD == "on")
+        {
+            stateService.SortByCategoryDescending();
+            await BlazoredModal.CloseAsync();
+        }
+        else if(SortByDescriptionA == "on")
+        {
+            stateService.SortByDescriptionAscending();
+            await BlazoredModal.CloseAsync();
+        }
+        else if(SortByDescriptionD == "on")
+        {
+            stateService.SortByDescriptionDescending();
+            await BlazoredModal.CloseAsync();
+        }
+        else
+        {
+            await BlazoredModal.CloseAsync();
+        }
+
+    }
+}

@@ -1,7 +1,86 @@
 ﻿@page "/Profile"
-<AddTransactions />
+@inject NavigationManager nav
+@attribute [Authorize]
+<div class=" vw-100 d-flex justify-content-center align-items-center" style="height:90vh">
+
+    <div class="w-50 h-50 shadow-lg bg-primary bg-gradiant  rounded text-white" style="min-width:max-content">
+        <div>
+            <h1 class="p-4" style="text-align:center;">Username:<b>@if (stateService.User != null)
+                    {
+                        @stateService.User.Username
+                    }</b></h1>
+        </div>
+        <div class="d-flex w-100 bg-white text-primary" style="text-align:center">
+            <div class="w-50 border-end p-3">
+                <h1><i class="fa-solid fa-dollar-sign"></i></h1>
+                <h2>Transactions</h2>
+                @if(stateService.Transactions != null && stateService.Transactions.Count()!= 0){
+                <h2>@stateService.Transactions.Count()</h2>
+                }
+            </div>
+            <div class="w-50  p-3">
+                <h1><i class="fa-solid fa-money-bill-transfer"></i></h1>
+                <h2>Categories</h2>
+                @if(categoriesStateService.Categories != null && categoriesStateService.Categories.Count!=0){
+                <h2>@categoriesStateService.Categories.Count()</h2>
+                }
+            </div>
+
+        </div>
+        <div class="text-white d-flex flex-row-reverse p-4"><button class="btn btn-warning" @onclick="ChangePassword">change password</button></div>
+    </div>
+</div>
+
 
 
 @code {
+    [CascadingParameter(Name = "StateService")]
+    public StateContainerService stateService { get; set; }
+    [CascadingParameter(Name = "CategoryStateService")]
+    public CategoiresStateContainerService categoriesStateService { get; set; }
+    [CascadingParameter]
+    public IModalService Modal { get; set; }
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+    public async void ChangePassword()
+    {
+        Modal.Show
+       <ChangePasswordModal>("");
+    }
+    protected async override Task OnInitializedAsync()
+    {
+        stateService.OnStateChange += StateHasChanged;
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        //toastService.ShowInfo("HOME REndered");
+
+        try
+        {
+            var authState = await authenticationStateTask;
+            var _user = authState.User;
+
+            if (!_user.Identity.IsAuthenticated)
+            {
+                Console.WriteLine(_user.ToString());
+                Console.WriteLine("up");
+                nav.NavigateTo("/login");
+            }
+            else
+            {
+
+            }
+        }
+        catch (System.Exception ex)
+        {
+            Console.WriteLine(ex);
+        }
+    }
+    public void Dispose()
+    {
+        stateService.OnStateChange -= StateHasChanged;
+    }
 
 }

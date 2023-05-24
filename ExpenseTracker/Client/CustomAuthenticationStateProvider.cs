@@ -44,16 +44,26 @@ namespace BlazorApp2.Client
             if (jwtToken == null) return null;
 
             //preparing http request
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, "user/getuserbyjwt");
-            requestMessage.Content = new StringContent(jwtToken);
+            //var requestMessage = new HttpRequestMessage(HttpMethod.Post, "user/getuserbyjwt");
+            //requestMessage.Content = new StringContent(jwtToken);
 
-            requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+            //requestMessage.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-            var response = await _httpClient.SendAsync(requestMessage);
+            //var response = await _httpClient.SendAsync(requestMessage);
 
-            var responseStatusCode = response.StatusCode;
-            var returnedUser = await response.Content.ReadFromJsonAsync<BLUser>();
+            //var responseStatusCode = response.StatusCode;
+            jwtToken = jwtToken.Substring(1, jwtToken.Length-2);
 
+            Console.WriteLine("user fetched -----" + jwtToken);
+            BLUser returnedUser;
+            try
+            {
+                 returnedUser = await _httpClient.GetFromJsonAsync<BLUser>($"/user/getuserbyjwt?jwtToken={jwtToken}");
+            }
+            catch
+            {
+                return null;
+            }
             //returning user if found
             if (returnedUser != null) return await Task.FromResult(returnedUser);
             else return null;

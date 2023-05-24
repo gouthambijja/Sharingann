@@ -1,24 +1,24 @@
 ﻿@using ExpenseTracker.Client.ViewModels;
 @using ExpressTrackerLogicLayer.Models;
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-@inject StateContainerService stateService
+@inject CategoiresStateContainerService stateService
 @inject IToastService toastService
 @inject IHomeViewModel _homeViewModel
 @inject NavigationManager nav
 @inject ICategoryViewModel _categoryViewModel
 
-<div class="category-container shadow ">
-    <div class=" d-flex overflow-scroll category-inner ">
+<div class="category-container shadow  ">
+    <div class=" d-flex overflow-scroll category-inner ms-3" style="min-height:48.6px">
     @if(Categories != null){
         @foreach(var item in stateService.Categories){
                 
-            <span class="badge text-light bg-primary my-3 ms-1">@item.Name <button class="delete-category" @onclick="()=>DeleteCategory(item)">x</button></span>
+            <span class="badge text-light bg-primary me-3 my-3 ms-1">@item.Name <button class="delete-category" @onclick="()=>DeleteCategory(item)">x</button></span>
         }
     }</div>
     <EditForm Model="_categoryViewModel" class="  px-5 rounded " OnSubmit="@AddCategory">
 
         <div class="form-floating mb-3 ">
-            <input type="text" required class="form-control" @bind="_categoryViewModel.Name" @bind:event="onchange" id="CategoryName" placeholder="Category Name">
+            <input pattern="{16}" title="Maximum Characters - 16" type="text" required class="form-control" @bind="_categoryViewModel.Name"  id="CategoryName" placeholder="Category Name">
             <label for="CategoryName">Category</label>
         </div>
         <button type="submit" class="btn btn-primary" >Add Category</button>
@@ -32,12 +32,25 @@
 @code {
     [Parameter]
     public List<BLCategory> Categories{ get; set; }
+    [Parameter]
+    public BLUser User { get; set; }
+    protected override void OnInitialized()
+    {
+    }
+    protected override void OnParametersSet()
+    {
+        //toastService.ShowInfo("Categories REndered");
+
+    }
     public async void AddCategory()
     {
-        _categoryViewModel.UserId = stateService.User.UserId;
+        _categoryViewModel.UserId = User.UserId;
         _categoryViewModel.CategoryId = "";
         var category = await _categoryViewModel.AddCategory();
         stateService.AddCategory(category);
+        _categoryViewModel.Name = "";
+        StateHasChanged();
+
     }
     public async void DeleteCategory(BLCategory category)
     {

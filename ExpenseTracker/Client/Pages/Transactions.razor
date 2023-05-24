@@ -7,49 +7,134 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject NavigationManager nav
 
-<div class="container TransactionContainer w-65 m-auto">
-    @if (stateService.Transactions != null)
+<div class="container TransactionContainer w-65 m-auto ">
+    <div class="d-flex justify-content-end mb-3 ">
+        @* <select class=" btn btn-primary me-2 " @bind="sortBy" required>
+        <option  value="DateAscending" selected >Date Ascending</option>
+        <option value="DateDescending">Date Descending</option>
+        <option value="NameAscending">Name Ascending</option>
+        <option value="NameDescending">Name Descending</option>
+        <option value="CategoryAscending">Category Ascending</option>
+        <option value="CategoryDescending">Category Descending</option>
+        <option value="DescriptionAscending">Description Ascending</option>
+        <option value="DescriptionDescending">Description Descending</option>
+        </select>*@
+        <button class="btn btn-primary me-2" @onclick="SortForm">
+            Sort
+        </button>
+        <button class="btn btn-primary " @onclick="FilterForm">
+            Filter
+        </button>
+    </div>
+    @if (stateService.Transactions != null && stateService.Transactions.Count != 0)
     {
-        
+
         @for (i = 0; i < transactions.Count();)
         {
-            <div class="row mb-2">
+            <div class="row ">
                 @for (int j = 0; i < transactions.Count() && j < 3; j++, i++)
                 {
-                    <div class="col-md-4">
-                        <div class="card text-center shadow">
-                            <div class="card-header bg-transparent" >
-                                @transactions[i].Name
+                    <div class="col-md-4 ">
+                        <div class="card mb-2 shadow transaction-card">
+                            <div class="card-header ps-5 bg-transparent">
+                                <h4>@transactions[i].Name</h4>
                             </div>
                             <div class="card-body">
-                                <h5 class="card-title">@transactions[i].Amount</h5>
+                                <h5 class="card-title">₹@transactions[i].Amount /-</h5>
                                 <p class="card-text">@transactions[i].Category</p>
-                                <a href="#" class="btn btn-primary">@transactions[i].Description</a>
+                                <div class="" style="text-align:right;">@transactions[i].Date</div>
+
                             </div>
                             <div class="card-footer text-muted bg-transparent">
-                                @transactions[i].Date
+
+                                @{
+                                    int idx = i;
+                                    <div class="d-flex justify-content-end mx-2 my-2">
+                                        <button class="btn btn-primary me-2 w-25 " style="min-width:max-content !important" @onclick="@(()=>EditCurrentTransaction(idx))">edit</button>
+                                        <button class="btn btn-primary w-25" style="min-width:max-content !important" @onclick="@(()=>DeleteCurrentTransaction(idx))">Delete</button>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
                 }
             </div>
         }
+    }
+    else
+    {
 
+        <p class="m-5" style="text-align:center;color:grey;">No Transactions.</p>
     }
 </div>
 
 @code {
+    public string sortBy { get; set; }
+    public DateTime date = DateTime.UtcNow;
     public int i = 0;
     [Parameter]
     public List<BLTransaction> transactions { get; set; }
+    [CascadingParameter] public IModalService Modal { get; set; }
+    [Parameter]
+    public List<BLCategory> Categories { get; set; }
+
 
     protected override async Task OnInitializedAsync()
     {
         stateService.OnStateChange += StateHasChanged;
-
+    }
+    public async void SearchTransactions()
+    {
+        List<BLTransaction> FilteredTransactions = new List<BLTransaction>();
+        //if(_homeViewModel.TransactionSearchType == "date")
+        //{
+        //    FilteredTransactions = await _homeViewModel.GetFilteredTransactionsByDate(stateService.User.UserId, _homeViewModel.StartDate, _homeViewModel.EndDate);
+        //}
+        //else if (_homeViewModel.TransactionSearchType == "none")
+        //{
+        //    FilteredTransactions = await _homeViewModel.GetTransactions(stateService.User.UserId);
+        //}
+        //else
+        //{
+        //    FilteredTransactions = await _homeViewModel.GetFilteredTransactions(stateService.User.UserId, _homeViewModel.TransactionSearchType, _homeViewModel.TransactionSearchString);
+        //}
+        stateService.SetTransaction(FilteredTransactions);
+    }
+    public void FilterForm()
+    {
+        var parameters = new ModalParameters()
+      .Add(nameof(FilterTransactions.Categories), Categories);
+        var _FilterTransactions = Modal.Show
+    <FilterTransactions>("Filters", parameters);
+    }
+    public void SortForm()
+    {
+        Modal.Show
+    <SortByTransaction>();
+    }
+    //public string GetCategoryType()
+    //{
+    //    return _homeViewModel.TransactionSearchType;
+    //}
+    public void EditCurrentTransaction(int idx)
+    {
+        var transaction = transactions[idx];
+        var parameters = new ModalParameters()
+       .Add(nameof(EditTransaction.transaction), transaction)
+       .Add(nameof(EditTransaction.Categories), Categories);
+        var EditTransactionModal = Modal.Show
+    <EditTransaction>("Edit Transaction", parameters);
+    }
+    public void DeleteCurrentTransaction(int idx)
+    {
+        var transaction = transactions[idx];
+        var parameters = new ModalParameters()
+        .Add(nameof(DeleteTransactionModal.transaction), transaction);
+        Modal.Show<DeleteTransactionModal>("", parameters);
     }
     protected override async Task OnParametersSetAsync()
     {
+        //toastService.ShowInfo("transactions REndered");
     }
     public void Dispose()
     {

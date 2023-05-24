@@ -16,5 +16,6 @@ namespace ExpressTrackerLogicLayer.Contracts
         Task<BLUser> Get(string UserId, string userPassword);
         Task<bool> GetById(string UserId);
         Task<BLUser> GetUserById(string UserId);
+        Task<bool> ChangePassword(string Username, string OldPassword, string NewPassword);
     }
 }
