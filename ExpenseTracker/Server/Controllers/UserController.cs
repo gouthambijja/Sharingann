@@ -2,6 +2,8 @@
 using ExpenseTracker.Server.Models;
 using ExpressTrackerLogicLayer.Contracts;
 using ExpressTrackerLogicLayer.Models;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,12 +11,17 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.Intrinsics.Arm;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using ExpressTrackerDBAccessLayer.Models;
+using PasswordGenerator;
 
 namespace ExpenseTracker.Server.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UserController
+    public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
         private static IConfiguration _config;
@@ -27,7 +34,7 @@ namespace ExpenseTracker.Server.Controllers
             _config = config;
         }
         [HttpPost("Register")]
-        public async Task<bool> RegisterUser(Models.User user)
+        public async Task<bool> RegisterUser(BLUser user)
         {
             //in this method you should only create a user record and not authenticate the user
             var UsernameExists = await IsUsernameExists(user.Username);
@@ -48,18 +55,14 @@ namespace ExpenseTracker.Server.Controllers
             return true;
         }
         [HttpPost("login")]
-        public async Task<Models.User> LoginUser(User LoginUser)
+        public async Task<BLUser> LoginUser(BLUser LoginUser)
         {
             LoginUser.Password = Utility.Encrypt(LoginUser.Password);
             var UsernameExists = await IsUsernameExists(LoginUser.Username);
             if (UsernameExists == false) return null;
             BLUser _user = await _userService.Get(LoginUser.Username, LoginUser.Password);
             if (_user == null) return null;
-            Models.User user = new Models.User();
-            user.Username = _user.Username;
-            user.Password = _user.Password;
-            user.UserId = _user.UserId;
-            return user;
+            return _user;
         }
 
         [HttpGet("IsUsernameExists")]
@@ -70,7 +73,7 @@ namespace ExpenseTracker.Server.Controllers
         [HttpPut("UpdatePassword")]
         public async Task<bool> UpdatePassword(ChangePassword cp)
         {
-            return await _userService.ChangePassword(cp.Username,Utility.Encrypt(cp.OldPassword), Utility.Encrypt(cp.NewPassword));
+            return await _userService.ChangePassword(cp.Username, Utility.Encrypt(cp.OldPassword), Utility.Encrypt(cp.NewPassword));
         }
 
         //jwt methods//---------------------------------
@@ -128,8 +131,8 @@ namespace ExpenseTracker.Server.Controllers
                 };
                 var tokenHandler = new JwtSecurityTokenHandler();
                 SecurityToken securityToken;
-                
-                     Console.WriteLine(jwtToken);
+
+                Console.WriteLine(jwtToken);
                 //validationg token
                 var principle = tokenHandler.ValidateToken(jwtToken, tokenValidationParameters, out securityToken);
                 var jwtSecurityToken = (JwtSecurityToken)securityToken;
@@ -169,8 +172,8 @@ namespace ExpenseTracker.Server.Controllers
                 };
                 var tokenHandler = new JwtSecurityTokenHandler();
                 SecurityToken securityToken;
-                
-                     Console.WriteLine(jwtToken);
+
+                Console.WriteLine(jwtToken);
                 //validationg token
                 var principle = tokenHandler.ValidateToken(jwtToken, tokenValidationParameters, out securityToken);
                 var jwtSecurityToken = (JwtSecurityToken)securityToken;
@@ -178,7 +181,7 @@ namespace ExpenseTracker.Server.Controllers
                 if (jwtSecurityToken != null && jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var userId = principle.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
                     return await _userService.GetUserById(userId);
                 }
             }
@@ -189,5 +192,63 @@ namespace ExpenseTracker.Server.Controllers
             }
             return null;
         }
+        [HttpGet("GoogleSignIn")]
+        public async Task GoogleSignIn()
+        {
+            await HttpContext.ChallengeAsync(GoogleDefaults.AuthenticationScheme,
+                new AuthenticationProperties { RedirectUri = "/user/google-login-callback" });
+
+            
+        }
+        [HttpGet]
+        [Route("google-login-callback")]
+        public async Task<IActionResult> GoogleLoginCallBack()
+        {
+            var authenticationResult = await HttpContext
+            .AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+            if (authenticationResult.Succeeded)
+            {
+                var authClaims = authenticationResult.Principal.Claims.ToList();
+                var identites = authenticationResult.Ticket.Principal.Identities.ToList();
+                Console.WriteLine(HttpContext.User.ToString() + " " + HttpContext.User.Identity.Name);
+                var claims = HttpContext.User.Claims.ToList();
+
+                string email = authenticationResult.Principal.Claims.Where(e => e.Type == ClaimTypes.Email)
+                .Select(_ => _.Value)
+                .FirstOrDefault();
+                string nameIdentifier = authenticationResult.Principal.Claims.Where(e => e.Type == ClaimTypes.NameIdentifier).Select(e => e.Value).FirstOrDefault();
+                Console.WriteLine(email);
+                int AtIdx = email.IndexOf("@");
+                string Username = email.Substring(0, AtIdx);
+                Console.WriteLine(Username);
+                string UserPassword = Utility.Encrypt(nameIdentifier);
+
+                //--------------------------------------------------------
+                //If Username doesn't exist it will register automatically
+                //---------------------------------------------------------
+                var UsernameExists = await IsUsernameExists(Username);
+                if (UsernameExists == false)
+                {
+                    await _userService.Add(new BLUser()
+                    {
+                        Username = Username,
+                        UserId = "",
+                        Password = UserPassword,
+                    });
+                }
+                var response = await LoginUser(new BLUser()
+                {
+                    Username = Username,
+                    Password = nameIdentifier,
+                });
+                var jwtToken = await  Authenticatejwt(response);
+                return Redirect($"/login?Token={jwtToken}");
+                //return Redirect($"/login?UserToken={jwtToken}");
+
+            }
+            return Redirect($"login");
+
+        }
     }
+
 }

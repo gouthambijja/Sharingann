@@ -1,14 +1,14 @@
 ﻿@using ExpressTrackerLogicLayer.Models;
-<h2 style="text-align:center;padding:1rem;">Category Wise Expenses</h2>
+<h2 style="text-align:center;padding:1rem;">Category Wise Yearly Summary</h2>
 @if (transactions != null && transactions.Count() != 0 && categories != null && categories.Count >= 0)
 {
 
-    <MudChart ChartType="ChartType.Line" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
 }
 <div class="d-flex w-100 justify-content-end p-3">
     <div class="d-flex ">
         <div class="form-floating ">
-            <input type="number" min="1999" max="@DateTime.Now.Year" required @bind="year" class="form-control" id="year" placeholder="YYYY">
+            <input type="year" min="1999" max="@DateTime.Now.Year" required @bind="year" class="form-control" id="year" placeholder="YYYY">
 
             <label for="year">year</label>
         </div>
@@ -62,15 +62,18 @@
     }
     protected async override Task OnInitializedAsync()
     {
-        foreach (var category in categories)
-        {
-            categoryNames.Add(category.Name);
-        }
+        
 
     }
     protected override void OnParametersSet()
     {
-
+        if (categoryNames.Count() <= 6)
+        {
+            foreach (var category in categories)
+            {
+                categoryNames.Add(category.Name);
+            }
+        }
         CreateCharts();    }
 
 

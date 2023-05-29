@@ -17,5 +17,8 @@ namespace ExpenseTracker.Client.ViewModels
         Task<List<BLTransaction>> AddTransactions(List<BLTransaction> _transactions);
         Task<BLTransaction> EditTransaction();
         Task<bool> DeleteTransaction(string transactionId);
+        Task<bool> DeleteTransactionPermanently(string transactionId);
+        public Task<bool> DeleteMultiple(List<string> TransactionIds);
+
     }
 }

@@ -33,6 +33,19 @@ namespace ExpenseTracker.Client.ViewModels
                 return null;
             }
         }
+        public async Task<List<BLTransaction>> GetBinTransactions(string UserId)
+        {
+            try
+            {
+
+            return await _httpClient.GetFromJsonAsync<List<BLTransaction>>($"Transaction/Bin?UserId={UserId}");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<BLTransaction> AddTransaction(BLTransaction transaction)
         {
             try
@@ -46,6 +59,7 @@ namespace ExpenseTracker.Client.ViewModels
                 return null;
             }
         }
+
         public async Task<List<BLCategory>> GetCategories(string UserId)
         {
             try
@@ -95,6 +109,20 @@ namespace ExpenseTracker.Client.ViewModels
             try
             {
                 return await _httpClient.GetFromJsonAsync<BLUser>($"/user/getuserbyjwt?jwtToken={token}");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<BLTransaction> RestoreTransaction(BLTransaction transaction)
+        {
+            try
+            {
+                Console.WriteLine("restore-");
+                var response =  await _httpClient.PutAsJsonAsync($"/Transaction/restore", transaction);
+                return await response.Content.ReadFromJsonAsync<BLTransaction>();
             }
             catch
             {

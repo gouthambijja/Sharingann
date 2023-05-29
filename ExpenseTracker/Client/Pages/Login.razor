@@ -38,7 +38,7 @@
                 <i class="fab fa-facebook-f"></i>
             </button>
 
-            <button type="button" class="btn btn-link btn-floating mx-1">
+            <button type="button" class="btn btn-link btn-floating mx-1" @onclick="LoginThroughGoogle">
                 <i class="fab fa-google"></i>
             </button>
 
@@ -51,37 +51,54 @@
             </button>
         </div>
 
-
     </EditForm>
-
+    @Token
 </div>
 @code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string Token { get; set; }
+
     public bool logging = false;
     public BLUser user;
     protected async override Task OnInitializedAsync()
     {
         stateService.OnStateChange += StateHasChanged;
-        string token = await localStorage.GetItemAsync<string>("jwt_token");
-        if (token != null)
+        if (Token != null && Token.Length > 0)
         {
-            try
+            await localStorage.SetItemAsync("jwt_token", Token);
+            nav.NavigateTo($"home", true);
+        }
+        else
+        {
+            string token = await localStorage.GetItemAsync<string>("jwt_token");
+            if (token != null && token.Length > 0)
             {
-                user = await _loginViewModel.GetUserByJWT(token);
-            }
-            catch
-            {
-                Console.WriteLine("ehlo");
-                Console.WriteLine("ehlo");
-            }
-            if (user != null)
-            {
-                stateService.SetUser(user);
-                nav.NavigateTo("home");
-                toastService.ShowInfo("Login Rendered");
-                
+                try
+                {
+                    user = await _loginViewModel.GetUserByJWT(token);
+                }
+                catch
+                {
+                    Console.WriteLine("Network Error");
+                }
+                if (user != null)
+                {
+                    Console.WriteLine("session-token!");
+                    stateService.SetUser(user);
+                    nav.NavigateTo("home");
+
+                }
             }
         }
     }
+    protected async override Task OnParametersSetAsync()
+    {
+       
+
+
+    }
+
 
     public async void LoginUser()
     {
@@ -93,9 +110,9 @@
             string token = await _loginViewModel.GetAuthenticateJwt(response);
             await localStorage.SetItemAsync("jwt_token", token);
 
-            stateService.SetUser(response);
+            //stateService.SetUser(response);
             Console.WriteLine("hey!!");
-            nav.NavigateTo($"home");
+            nav.NavigateTo($"home", true);
         }
         catch
         {
@@ -105,12 +122,18 @@
         StateHasChanged();
 
     }
+
     public void register()
     {
         nav.NavigateTo("registration");
+    }
+    public void LoginThroughGoogle()
+    {
+        nav.NavigateTo("/user/GoogleSignIn", true);
     }
     public void Dispose()
     {
         stateService.OnStateChange -= StateHasChanged;
     }
+
 }

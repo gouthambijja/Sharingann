@@ -11,19 +11,19 @@ namespace ExpenseTracker.Client.ViewModels
         {
             _httpClient = httpClient;
         }
-        public string? TransactionId { get ; set ; }
-        public string? Name { get ; set ; }
-        public string? Description { get ; set ; }
-        public string? Category { get ; set ; }
-        public DateTime Date { get ; set ; }
-        public double Amount { get ; set ; }
-        public string? UserId { get ; set ; }
+        public string? TransactionId { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? Category { get; set; }
+        public DateTime Date { get; set; }
+        public double Amount { get; set; }
+        public string? UserId { get; set; }
 
         public async Task<BLTransaction> AddTransaction()
         {
             try
             {
-                   
+
                 var response = await _httpClient.PostAsJsonAsync("/Transaction/AddTransaction", this);
                 this.Amount = 0;
                 this.Category = "Investment";
@@ -41,10 +41,7 @@ namespace ExpenseTracker.Client.ViewModels
         {
             try
             {
-                 foreach(var _transaction in _transactions)
-                {
-                    _transaction.Date = DateTime.Now;
-                }  
+
                 var response = await _httpClient.PostAsJsonAsync("/Transaction/AddTransactions", _transactions);
                 return await response.Content.ReadFromJsonAsync<List<BLTransaction>>();
             }
@@ -71,6 +68,30 @@ namespace ExpenseTracker.Client.ViewModels
             try
             {
                 var response = await _httpClient.DeleteAsync($"/Transaction/DeleteTransaction/{transactionId}");
+                return await response.Content.ReadFromJsonAsync<bool>();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public async Task<bool> DeleteTransactionPermanently(string transactionId)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"/Transaction/DeleteTransactionPermanently/{transactionId}");
+                return await response.Content.ReadFromJsonAsync<bool>();
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public async Task<bool> DeleteMultiple(List<string> TransactionIds)
+        {
+            try
+            {
+                var response =  await _httpClient.PostAsJsonAsync($"/Transaction/DeleteMultiple", TransactionIds);
                 return await response.Content.ReadFromJsonAsync<bool>();
             }
             catch

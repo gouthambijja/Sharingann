@@ -1,0 +1,29 @@
+﻿@page "/bin"
+
+<div class="vh-100">
+    @if (binTransactionStateService.Transactions != null && binTransactionStateService.Transactions.Count() > 0)
+    {
+        <BinTransactions transactions="@binTransactionStateService.Transactions" />
+    }
+    else{
+        <div class="p-5 " style="text-align:center;">Bin is Empty</div>
+    }
+
+
+
+</div>
+@code {
+    string view = "transactions";
+    [CascadingParameter(Name = "BinTransactionStateService")]
+    public BinTransactionStateContainerService binTransactionStateService { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        binTransactionStateService.OnStateChange += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        binTransactionStateService.OnStateChange -= StateHasChanged;
+
+    }
+}

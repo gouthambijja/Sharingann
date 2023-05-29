@@ -19,6 +19,16 @@
         <option value="DescriptionAscending">Description Ascending</option>
         <option value="DescriptionDescending">Description Descending</option>
         </select>*@
+        @if (NoOfTransactionsSelected > 0)
+        {
+            <button class="btn btn-danger me-2" @onclick="DeleteMultiple">
+                Delete Selected (@NoOfTransactionsSelected)
+            </button>
+        }
+        else
+        {
+            Console.WriteLine(NoOfTransactionsSelected);
+        }
         <button class="btn btn-primary me-2" @onclick="SortForm">
             Sort
         </button>
@@ -35,27 +45,39 @@
                 @for (int j = 0; i < transactions.Count() && j < 3; j++, i++)
                 {
                     <div class="col-md-4 ">
-                        <div class="card mb-2 shadow transaction-card">
-                            <div class="card-header ps-5 bg-transparent">
-                                <h4>@transactions[i].Name</h4>
-                            </div>
-                            <div class="card-body">
-                                <h5 class="card-title">₹@transactions[i].Amount /-</h5>
-                                <p class="card-text">@transactions[i].Category</p>
-                                <div class="" style="text-align:right;">@transactions[i].Date</div>
+                        @{
+                            int idx = i;
+                            <div class="card mb-2 shadow transaction-card @(selected[idx]?"select":"")" >
+                                <div class="card-header ps-5 bg-transparent">
+                                    <h4>@transactions[i].Name</h4>
+                                </div>
+                                <div class="card-body pointer   " @onclick="(()=>{if(selected[idx] == true){selected[idx] = false;NoOfTransactionsSelected--;}else{selected[idx]=true;NoOfTransactionsSelected++;}})">
+                                    <h5 class="card-title">₹@transactions[i].Amount /-</h5>
+                                    <p class="card-text">@transactions[i].Category</p>
+                                    <div class="" style="text-align:right;">@transactions[i].Date</div>
 
-                            </div>
-                            <div class="card-footer text-muted bg-transparent">
+                                </div>
+                                <div class="card-footer text-muted bg-transparent">
 
-                                @{
-                                    int idx = i;
+
                                     <div class="d-flex justify-content-end mx-2 my-2">
-                                        <button class="btn btn-primary me-2 w-25 " style="min-width:max-content !important" @onclick="@(()=>EditCurrentTransaction(idx))">edit</button>
-                                        <button class="btn btn-primary w-25" style="min-width:max-content !important" @onclick="@(()=>DeleteCurrentTransaction(idx))">Delete</button>
+                                        @if (selected[idx])
+                                        {
+                                            <span class="hover-color-primary me-2 " style="min-width:max-content !important" @onclick="(()=>{selected[idx]=false;NoOfTransactionsSelected = NoOfTransactionsSelected - 1;})"><i class="fa-regular fa-square-check"></i></span>
+                                        }
+                                        else
+                                        {
+                                            <span class="hover-color-primary me-2 " style="min-width:max-content !important" @onclick="(()=>{selected[idx]=true; NoOfTransactionsSelected = NoOfTransactionsSelected + 1;})"><i class="fa-regular fa-square"></i></span>
+                                            
+                                        }
+                                        <span class="hover-color-primary me-2 " style="min-width:max-content !important" @onclick="@(()=> ShowTransaction(idx))"><i class="fa-solid fa-maximize"></i></span>
+                                        <span class="hover-color-primary me-2 " style="min-width:max-content !important" @onclick="@(()=> EditCurrentTransaction(idx))"><i class="fas fa-edit"></i></span>
+                                        <span class="hover-color-primary " style="min-width:max-content !important" @onclick="@(()=>DeleteCurrentTransaction(idx))"><i class="fa fa-trash" aria-hidden="true"></i></span>
                                     </div>
-                                }
+
+                                </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 }
             </div>
@@ -69,6 +91,8 @@
 </div>
 
 @code {
+    private bool[] selected;
+    private int NoOfTransactionsSelected = 0;
     public string sortBy { get; set; }
     public DateTime date = DateTime.UtcNow;
     public int i = 0;
@@ -116,6 +140,13 @@
     //{
     //    return _homeViewModel.TransactionSearchType;
     //}
+    public void ShowTransaction(int idx)
+    {
+        var transaction = transactions[idx];
+        var parameters = new ModalParameters()
+       .Add(nameof(TransactionInfoModal.transaction), transaction);
+        Modal.Show<TransactionInfoModal>("", parameters);
+    }
     public void EditCurrentTransaction(int idx)
     {
         var transaction = transactions[idx];
@@ -132,8 +163,35 @@
         .Add(nameof(DeleteTransactionModal.transaction), transaction);
         Modal.Show<DeleteTransactionModal>("", parameters);
     }
+    public async void DeleteMultiple()
+    {
+        List<string> TransactionIds = new List<string>();
+        List<BLTransaction> transactionsToBeDeleted = new List<BLTransaction>();
+        for (var i = 0; i < selected.Length; i++)
+        {
+            if (selected[i])
+            {
+                TransactionIds.Add(transactions[i].TransactionId);
+                transactionsToBeDeleted.Add(transactions[i]);
+            }
+
+        }
+        var parameters = new ModalParameters()
+        .Add(nameof(DeleteMultipleTransactionsModal.transactionIds), TransactionIds)
+        .Add(nameof(DeleteMultipleTransactionsModal.transactions), transactionsToBeDeleted)
+        .Add(nameof(DeleteMultipleTransactionsModal.NoOfTransactionsSelected), NoOfTransactionsSelected);
+        var DeleteModal = Modal.Show<DeleteMultipleTransactionsModal>("", parameters);
+        var result = await DeleteModal.Result;
+        if (result.Confirmed)
+        {
+            NoOfTransactionsSelected = 0;
+            selected = new bool[transactions.Count()];
+            StateHasChanged();
+        }
+    }
     protected override async Task OnParametersSetAsync()
     {
+        selected = new bool[transactions.Count()];
         //toastService.ShowInfo("transactions REndered");
     }
     public void Dispose()

@@ -20,6 +20,11 @@ namespace ExpenseTracker.Server.Controllers
         {
             return await _transactionService.GetAll(UserId);
         }
+        [HttpGet("Bin")]
+        public async Task<List<BLTransaction>> GetBin(string UserId)
+        {
+            return await _transactionService.GetBinAll(UserId);
+        }
         [HttpPost("AddTransaction")]
         public async Task<BLTransaction> Post(BLTransaction transaction)
         {
@@ -50,10 +55,27 @@ namespace ExpenseTracker.Server.Controllers
             return await _transactionService.Update(transaction);
                     
         }
+        [HttpPut("Restore")]
+        public async Task<BLTransaction> Restore(BLTransaction transaction)
+        {
+            Console.WriteLine("restore-");
+            return await _transactionService.Restore(transaction);
+                    
+        }
         [HttpDelete("DeleteTransaction/{id}")]
         public async Task<bool> DeleteTransaction(string id)
         {
             return await _transactionService.Delete(id);
+        }
+        [HttpDelete("DeleteTransactionPermanently/{id}")]
+        public async Task<bool> DeleteTransactionPermanently(string id)
+        {
+            return await _transactionService.DeletePermanently(id);
+        }
+        [HttpPost("DeleteMultiple")]
+        public async Task<bool> DeleteMultiple(List<string> TransactionIds)
+        {
+            return await _transactionService.DeleteMultiple(TransactionIds);
         }
     }
 

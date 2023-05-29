@@ -1,0 +1,34 @@
+﻿@using ExpressTrackerLogicLayer.Models;
+@using ExpenseTracker.Client.ViewModels;
+@inject ITransactionViewModel _transactionViewModel
+@inject StateContainerService stateService
+@inject BinTransactionStateContainerService binTransactionStateContainerService
+<div class=" vw-100 d-flex justify-content-center align-content-center p-5 rounded">
+    <form class="bg-white p-5 rounded"  @onsubmit="DeleteCurrentTransaction">
+        <h4>Are you sure you're deleting the transaction with name:<b>@transaction.Name</b></h4>
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-danger me-2" type="submit">Delete</button>
+            <button class="btn btn-secondary" type="button" @onclick="CancelDelete">Cancel</button>
+        </div>
+        <i style="color:red">This transaction can't be restored again!</i>
+    </form>
+</div>
+
+@code {
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default;
+    [Parameter]
+    public BLTransaction transaction { get; set; }
+
+    public async void CancelDelete()
+    {
+        await BlazoredModal.CloseAsync();
+    }
+    public async void DeleteCurrentTransaction()
+    {
+        await _transactionViewModel.DeleteTransactionPermanently(transaction.TransactionId);
+        binTransactionStateContainerService.DeleteTransaction(transaction);
+        StateHasChanged();
+        await BlazoredModal.CloseAsync();
+    }
+}

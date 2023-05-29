@@ -8,24 +8,27 @@
 @inject CategoiresStateContainerService categoriesStateService
 <nav class="navbar navbar-expand-md mb-3 navbar-primary bg-primary shadow-sm sticky-top bg-gradient px-3">
     <div class="container-fluid">
-        <a class="navbar-brand text-light" href="">ExpenseTracker</a>
+        <a class="navbar-brand text-light" href="">₹ ExpenseTracker</a>
         <button class="navbar-toggler btn-primary @NavButtonCssClass" @onclick="ToggleNavMenu" type="button" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" style="border:none !important">
             <span><i class="fa-solid fa-bars"></i></span>
         </button>
         <div class="collapse navbar-collapse @NavBarCssClass " id="navbarCollapse" @onclick="ToggleNavMenu">
             <div class="d-flex justify-content-between w-100">
             <ul class="navbar-nav d-flex justify-content-center align-items-center h6 small">
-                <li class="OnHoverDecorate pointer text-light px-3" @onclick="NavigateToHome">
+                <NavLink class="OnHoverDecorate navitem pointer text-light px-3" @onclick="NavigateToHome">
                     Home
-                </li>
-                <li class="OnHoverDecorate pointer text-light px-3" @onclick="NavigateToDashBoard">
+                </NavLink>
+                <NavLink class="OnHoverDecorate navitem pointer text-light px-3" @onclick="NavigateToDashBoard">
                     DashBoard
-                </li>
-                <li class="OnHoverDecorate pointer text-light px-3" @onclick="NavigateToProfile">
+                </NavLink>
+                    <NavLink class="OnHoverDecorate navitem pointer text-light px-3" @onclick="NavigateToProfile">
                     Profile
-                </li>
+                </NavLink>
+                    <NavLink class="OnHoverDecorate navitem pointer text-light px-3" @onclick="NavigateToBin">
+                        Bin
+                    </NavLink>
             </ul>
-              <div>  <b>@Username</b><span class="text-light pointer " @onclick="logout"> Logout <i class="fa fa-sign-out" aria-hidden="true"></i></span>
+              <div>  <b class="text-white pe-3">@Username</b><span class="text-light pointer " @onclick="logout"> Logout <i class="fa fa-sign-out" aria-hidden="true"></i></span>
                 </div>
             </div>
         </div>
@@ -70,6 +73,10 @@
     private void NavigateToProfile()
     {
         nav.NavigateTo("/profile");
+    }
+    private void NavigateToBin()
+    {
+        nav.NavigateTo("/bin");
     }
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }

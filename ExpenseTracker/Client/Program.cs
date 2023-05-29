@@ -9,9 +9,7 @@ using ExpenseTracker.Client.ViewModels;
 using Blazored.Toast;
 using MudBlazor.Services;
 using Blazored.Modal;
-
-
-
+using ExpenseTracker.Client.Pages;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -27,9 +25,6 @@ builder.Services.AddBlazoredModal();
 
 
 builder.Services.AddHttpClient<ILoginViewModel, LoginViewModel>
-               ("FetchDataViewModelClient", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
-               .AddHttpMessageHandler<CustomAuthorizationHandler>();
-builder.Services.AddHttpClient<ICounter, Counter>
                ("FetchDataViewModelClient", client => client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress))
                .AddHttpMessageHandler<CustomAuthorizationHandler>();
 builder.Services.AddHttpClient<IRegisterViewModel, RegisterViewModel>
@@ -59,4 +54,5 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddAuthorizationCore();
 builder.Services.AddSingleton<StateContainerService>();
 builder.Services.AddSingleton<CategoiresStateContainerService>();
+builder.Services.AddSingleton<BinTransactionStateContainerService>();
 await builder.Build().RunAsync();

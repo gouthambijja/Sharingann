@@ -39,7 +39,8 @@ namespace ExpressTrackerDBAccessLayer.Repositories
                      Where(e => e.CategoryId == category.CategoryId).ToListAsync();
                 if (_Categories.Count == 0) return null;
                 var _category = _Categories[0];
-                _CategoryDBContext.Remove(_category);
+                _category.IsActive = false;
+                _category.UpdatedAt = DateTime.Now; 
                 await _CategoryDBContext.SaveChangesAsync();
                 return category;
             }
@@ -54,7 +55,7 @@ namespace ExpressTrackerDBAccessLayer.Repositories
             try
             {
                 var List = await _CategoryDBContext.Categories.
-               Where(e => e.UserId == UserId).ToListAsync();
+               Where(e => e.UserId == UserId && e.IsActive == true).ToListAsync();
                 if (List.Count == 0) return null;
                 else return List;
             }

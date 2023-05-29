@@ -39,6 +39,7 @@ namespace ExpressTrackerDBAccessLayer.Repositories
                 var user = users[0];
                 if (user == null) { return false; }
                 user.Password = newPassword ;
+                user.UpdatedAt = DateTime.Now;
                 await _UserDBContext.SaveChangesAsync();
                 return true ;
             }

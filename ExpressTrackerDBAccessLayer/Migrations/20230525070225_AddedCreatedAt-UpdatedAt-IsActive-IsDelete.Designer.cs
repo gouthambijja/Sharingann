@@ -4,6 +4,7 @@ using ExpressTrackerDBAccessLayer.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpressTrackerDBAccessLayer.Migrations
 {
     [DbContext(typeof(ExpenseTrackerDBContext))]
-    partial class ExpenseTrackerDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230525070225_AddedCreatedAt-UpdatedAt-IsActive-IsDelete")]
+    partial class AddedCreatedAtUpdatedAtIsActiveIsDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

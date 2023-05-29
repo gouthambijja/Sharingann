@@ -1,5 +1,7 @@
 using ExpenseTracker.Server;
 using ExpressTrackerLogicLayer;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.IdentityModel.Tokens;
@@ -34,7 +36,18 @@ builder.Services.AddAuthentication(options =>
             ValidateAudience = false,
             ClockSkew = TimeSpan.Zero
         };
+    })
+    .AddCookie()
+.AddGoogle(googleoptions =>
+    {
+        googleoptions.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        googleoptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        googleoptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+        
     });
+
+
+
 builder.Services.AddAuthorization();
 Startup.StartUpConfigure(builder.Services,builder.Configuration);
 var app = builder.Build();

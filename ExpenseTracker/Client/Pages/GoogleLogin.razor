@@ -1,0 +1,17 @@
+﻿@layout EmptyLayout
+@page "/googlelogin/{Name}/{Identifier}"
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
+<h3>GoogleLogin</h3>
+
+@code {
+    [Parameter]
+    public string Name {get;set;}
+    [Parameter]
+    public string Identifier {get;set;}
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine(Name);
+        Console.WriteLine(Identifier);
+    }
+}

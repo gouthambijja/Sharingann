@@ -22,6 +22,10 @@ namespace ExpressTrackerLogicLayer.Services
         public async Task<BLUser> Add(BLUser user)
         {
             user.UserId = Guid.NewGuid().ToString();
+            user.CreatedAt = DateTime.Now;
+            user.UpdatedAt = DateTime.Now;
+            user.IsActive = true;
+            user.IsPermanentDelete = false;
             var mapper = AutoMappers.InitializeUserAutoMapper();
             User _user = mapper.Map<User>(user);
             _user = await _userRepository.Add(_user);

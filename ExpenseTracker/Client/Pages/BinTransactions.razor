@@ -1,0 +1,93 @@
+﻿@using ExpenseTracker.Client.ViewModels;
+@using ExpressTrackerLogicLayer.Models;
+@inject IHomeViewModel _homeViewModel
+@inject StateContainerService stateService
+@inject BinTransactionStateContainerService binState
+@implements IDisposable
+@inject IToastService toastService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager nav
+
+<div class="container TransactionContainer w-65 m-auto vh-100">
+    @if (binState.Transactions != null && binState.Transactions.Count != 0)
+    {
+
+        @for (i = 0; i < transactions.Count();)
+        {
+            <div class="row ">
+                @for (int j = 0; i < transactions.Count() && j < 3; j++, i++)
+                {
+                    <div class="col-md-4 ">
+                        <div class="card mb-2 shadow transaction-card">
+                            <div class="card-header ps-5 bg-transparent">
+                                <h4>@transactions[i].Name</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">₹@transactions[i].Amount /-</h5>
+                                <p class="card-text">@transactions[i].Category</p>
+                                <div class="" style="text-align:right;">@transactions[i].Date</div>
+
+                            </div>
+                            <div class="card-footer text-muted bg-transparent">
+
+                                @{
+                                    int idx = i;
+                                    <div class="d-flex justify-content-end mx-2 my-2">
+                                        <button class="btn btn-primary me-2 w-25 " style="min-width:max-content !important" @onclick="@(()=> RestoreTransaction(idx))">Restore</button>
+                                        <button class="btn btn-primary me-2 w-25 " style="min-width:max-content !important" @onclick="@(()=> DeletePermanently(idx))">Delete permanently</button>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+
+        <p class="m-5" style="text-align:center;color:grey;">No Deleted Transactions.</p>
+    }
+</div>
+
+@code {
+    public string sortBy { get; set; }
+    public DateTime date = DateTime.UtcNow;
+    public int i = 0;
+    [Parameter]
+    public List<BLTransaction> transactions { get; set; }
+    [CascadingParameter] public IModalService Modal { get; set; }
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        stateService.OnStateChange += StateHasChanged;
+        binState.OnStateChange += StateHasChanged;
+
+    }
+
+    public void DeletePermanently(int idx)
+    {
+        var parameters = new ModalParameters()
+        .Add(nameof(DeleteTransactionPermanentlyModal.transaction), transactions[idx]);
+        Modal.Show<DeleteTransactionPermanentlyModal>("", parameters);
+    }
+    public async void RestoreTransaction(int idx)
+    {
+        await _homeViewModel.RestoreTransaction(transactions[idx]);
+        stateService.AddTrasaction(transactions[idx]);
+        binState.DeleteTransaction(transactions[idx]);
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        //toastService.ShowInfo("transactions REndered");
+    }
+    public void Dispose()
+    {
+        stateService.OnStateChange -= StateHasChanged;
+        binState.OnStateChange -= StateHasChanged;
+
+    }
+}

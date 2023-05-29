@@ -27,6 +27,10 @@ namespace ExpressTrackerLogicLayer.Services
             try
             {
                 category.CategoryId = Guid.NewGuid().ToString();
+                category.CreatedAt = DateTime.Now;
+                category.UpdatedAt = DateTime.Now;
+                category.IsActive = true;
+                category.IsPermanentDelete = false;
                 var mapper = AutoMappers.InitializeCategoryAutoMapper();
                 Category _category = mapper.Map<Category>(category);
                 _category = await _categoryRepository.Add(_category);

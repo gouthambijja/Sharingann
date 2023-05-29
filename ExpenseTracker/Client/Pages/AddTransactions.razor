@@ -1,10 +1,9 @@
-﻿@using IronPdf;
-@using IronSoftware.Drawing;
-@using ExpenseTracker.Client.ViewModels;
+﻿@using ExpenseTracker.Client.ViewModels;
 @using ExpressTrackerLogicLayer.Models;
 @using System.Text.Json;
 @inject ITransactionViewModel _transactionViewModel
 @inject StateContainerService stateService
+@inject CategoiresStateContainerService CategoryStateContainer
 @inject IToastService toastService
 
  <EditForm Model="_transactionViewModel" class="   rounded " OnSubmit="@AddTransaction">
@@ -14,7 +13,7 @@
             <label for="TransactionName">Name</label>
         </div>
     <div class="form-floating mb-3">
-        <input type="date" class="form-control" @bind="_transactionViewModel.Date" id="TransactionDate" placeholder="Date">
+        <input type="date" class="form-control" min="1999-01-01" max="2030-01-01" @bind="_transactionViewModel.Date" id="TransactionDate" placeholder="Date">
         <label for="TransactionDate">Date</label>
     </div>
         <div class="form-floating mb-3">
@@ -38,7 +37,10 @@
         {
             @foreach (var item in Categories)
             {
-                <option value="@item.Name">@item.Name</option>
+                if (item != null)
+                {
+                    <option value="@item.Name">@item.Name</option>
+                }
             }
         }
 
@@ -51,7 +53,7 @@
 <div class="d-flex align-items-center position-relative mb-3" >
     <div class="border-top w-100  ">
     </div>
-    <div class="d-inline px-3 position-absolute" style="background:#fff;top:50%;left:50%;transform: translateX(-50%) translateY(-50%); text-align:center;">or</div>
+    <div class="d-inline px-3 or position-absolute" style="background:#fff;top:50%;left:50%;transform: translateX(-50%) translateY(-50%); text-align:center;">or</div>
 </div>
 
     <form class="mb-3" @onsubmit="AddListTransactions">
@@ -66,12 +68,14 @@
     private bool bClearInputFile = true;
     List<BLTransaction> _transactions = new List<BLTransaction>();
     public string reader = "";
-    [Parameter]
     public List<BLCategory> Categories{ get; set; }
     protected override void OnInitialized()
     {
         _transactionViewModel.Date = DateTime.Now;
         _transactionViewModel.Category = "Category";
+        stateService.OnStateChange += StateHasChanged;
+        CategoryStateContainer.OnStateChange += StateHasChanged;
+        Categories = CategoryStateContainer.Categories;
     }
     public async void AddTransaction()
     {
@@ -108,7 +112,7 @@
     {
         Console.WriteLine(_transactions.Count());
         _transactions = await _transactionViewModel.AddTransactions(_transactions);
-        stateService.AddTrasactions(_transactions);
+        stateService.AddTransactions(_transactions);
         _transactions = new List<BLTransaction>();
         ClearInputFile();
     }
@@ -120,5 +124,10 @@
         StateHasChanged();
         bClearInputFile = true;
         StateHasChanged();
+    }
+    public void Dispose()
+    {
+        stateService.OnStateChange -= StateHasChanged;
+        CategoryStateContainer.OnStateChange -= StateHasChanged;
     }
 }

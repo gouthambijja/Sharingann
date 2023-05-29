@@ -1,0 +1,127 @@
+﻿@page "/scatterSimple"
+@using ExpressTrackerLogicLayer.Models;
+@inject IToastService toastService
+
+<h2 style="text-align:center;padding:1rem;">Category wise Montly Summary</h2>
+@if (transactions != null && transactions.Count() != 0 && categories != null && categories.Count >= 0)
+{
+    @if (_config1.Data.Datasets.Count() > 0)
+    {
+        <Chart Config="_config1" @ref="_chart1" Height="400px"></Chart>
+    }
+}
+<div class="d-flex w-100 justify-content-end p-3">
+    <form class="d-flex" @onsubmit="CreateCharts">
+        <div class="form-floating ">
+            <input type="month" min="1999-01-01" max="2030-01-01" required @bind="StartDate" class="form-control me-2" id="StartDate" placeholder="StartDate">
+            <label for="StartDate">Start Date</label>
+        </div>
+        <button class="btn btn-secondary" type="submit">submit</button>
+    </form>
+</div>
+
+
+@code {
+    [Parameter]
+    public List<BLTransaction> transactions { get; set; }
+    [Parameter]
+    public List<BLCategory> categories { get; set; }
+    private ScatterChartConfig? _config1;
+    private Chart? _chart1;
+    public int year = DateTime.Now.Year;
+    public List<string> categoryNames = new() { "Investment", "Groceries", "Entertainment", "Transportation", "Unassigned", "Dining out" };
+    public DateTime StartDate = DateTime.Now.AddDays(1 - DateTime.Now.Day);
+    Random random = new Random();
+    //{
+    //    new ScatterXYValue() { X = -10, Y = 0 },
+    //        new ScatterXYValue() { X = 0, Y = 10 },
+    //        new ScatterXYValue() { X = 10, Y = 5 },
+    //        new ScatterXYValue() { X = 0.5M, Y = 5.5M }
+    //    };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _config1 = new ScatterChartConfig()
+            {
+                Options = new Options()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = false
+                }
+            };
+
+
+
+    }
+    protected override void OnParametersSet()
+    {
+        if (categoryNames.Count() <= 6)
+        {
+            foreach (var category in categories)
+            {
+                categoryNames.Add(category.Name);
+            }
+        }
+        CreateCharts();
+    }
+    public void CreateCharts()
+    {
+        _config1 = new ScatterChartConfig()
+            {
+                Options = new Options()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = false
+                }
+            }; 
+        int NoOfDays = 31;
+        decimal[] days = new decimal[NoOfDays];
+        for (int i = 0; i < NoOfDays; i++)
+        {
+            days[i] = i + 1;
+        }
+        Console.WriteLine(StartDate.Date);
+        foreach (var category in categoryNames)
+        {
+            List<ScatterXYValue> ScatterDatasets = new List<ScatterXYValue>();
+            var TransactionsOfGivenDateRange = new double[NoOfDays+1];
+            int DaysIterator = 0;
+            while (DaysIterator <= NoOfDays)
+            {
+                var category_transactions = transactions.Where(e => e.Category == category && e.Date.Date == StartDate.AddDays(DaysIterator+1).Date);
+                double TotalTransactionAmountOfDay = 0;
+                int NoOfTransactions = 0;
+                foreach (var transaction in category_transactions)
+                {
+                    TotalTransactionAmountOfDay += transaction.Amount;
+                    NoOfTransactions++;
+                }
+                double AvgTransactionAmountOfDay = 0;
+                if (NoOfTransactions != 0)
+                {
+                    AvgTransactionAmountOfDay = TotalTransactionAmountOfDay / NoOfTransactions;
+                }
+                TransactionsOfGivenDateRange[DaysIterator] = AvgTransactionAmountOfDay;
+                DaysIterator++;
+            }
+            Console.WriteLine(category + "--------------");
+            for (var it = 0; it < days.Length; it++)
+            {
+                Console.WriteLine(days[it] + " - " + TransactionsOfGivenDateRange[it]);
+                ScatterDatasets.Add(new ScatterXYValue() { X = days[it], Y = (decimal)TransactionsOfGivenDateRange[it] });
+            }
+            var color = $"rgb({random.Next(200)},{random.Next(200)},{random.Next(200)})";
+            _config1.Data.Datasets.Add(new ScatterDataset()
+                {
+                    BackgroundColor = color,
+                    Label = $"{category}",
+                    Data = ScatterDatasets
+                });
+        }
+        StateHasChanged();
+
+        //-------------------------------------------------------------------------------------------------------------------
+
+    }
+}

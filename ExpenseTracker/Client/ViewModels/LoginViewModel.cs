@@ -31,6 +31,7 @@ namespace ExpenseTracker.Client.ViewModels
             //return response;
         }
 
+
         public async Task<string> GetAuthenticateJwt(BLUser user)
         {
             var response = await _httpClient.PostAsJsonAsync($"/user/authenticatejwt", user);

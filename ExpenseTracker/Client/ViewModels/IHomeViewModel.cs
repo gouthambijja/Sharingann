@@ -12,6 +12,8 @@ namespace ExpenseTracker.Client.ViewModels
         public  string TransactionSearchString { get; set; }
         public static string UserId { get; set; }
         Task<List<BLTransaction>> GetTransactions(string UserId);
+        Task<List<BLTransaction>> GetBinTransactions(string UserId);
+        Task<BLTransaction> RestoreTransaction(BLTransaction transaction);
         public Task<BLTransaction> AddTransaction(BLTransaction transaction);
         Task<List<BLCategory>> GetCategories(string UserId);
         public Task<BLUser> GetUserByJWT(string token);

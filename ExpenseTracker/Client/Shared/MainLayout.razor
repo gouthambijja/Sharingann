@@ -8,6 +8,7 @@
 @inject IHomeViewModel _homeViewModel
 @inject StateContainerService stateService
 @inject CategoiresStateContainerService categoriesStateService
+@inject BinTransactionStateContainerService binTransactionStateContainerService
 @inject IToastService toastService
 
 <div class="">
@@ -17,7 +18,9 @@
             <main>
                 <CascadingValue Value="@stateService" Name="StateService">
                     <CascadingValue Value="@categoriesStateService" Name="CategoryStateService">
-                        @Body
+                        <CascadingValue Value="@binTransactionStateContainerService" Name="BinTransactionStateService">
+                            @Body
+                        </CascadingValue>
                     </CascadingValue>
                 </CascadingValue>
 
@@ -51,14 +54,15 @@
     protected override async void OnInitialized()
     {
         string token = await localStorage.GetItemAsync<string>("jwt_token");
-        if (token == null)
+        if (token == null || token.Length == 0)
         {
             nav.NavigateTo("/login");
+            return;
         }
         var user = await _homeViewModel.GetUserByJWT(token);
         if (user == null)
         {
-
+            Console.WriteLine(token);
             toastService.ShowInfo("SessionEnded Please login again!");
             Console.WriteLine("down");
             nav.NavigateTo("/login");
@@ -72,6 +76,8 @@
                 categoriesStateService.SetCategory(Categories);
                 var Transactions = await _homeViewModel.GetTransactions(stateService.User.UserId);
                 stateService.SetTransaction(Transactions);
+                var BinTransactions = await _homeViewModel.GetBinTransactions(stateService.User.UserId);
+                binTransactionStateContainerService.SetTransaction(BinTransactions);
             }
         }
 

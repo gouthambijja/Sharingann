@@ -1,0 +1,112 @@
+﻿@using ExpressTrackerLogicLayer.Models;
+
+<div class="graph-container-fluid m-auto d-flex  justify-content-between mb-5 text-primary" style="flex-wrap:wrap;">
+    <div class="dashboard-cards shadow d-flex flex-column justify-content-center align-items-center">
+        <h4>Last Transaction</h4>
+        @if (transactions != null && transactions.Count() > 0)
+        {
+            <h1>₹ @transactions[0].Amount</h1>
+            <p>  @transactions[0].Category</p>
+        }
+    </div>
+    <div class="w-50 mediawidthfull shadow text-primary d-flex flex-row">
+        <div style="flex-basis:50%;">
+            <div class="d-flex p-3 justify-content-center align-content-center flex-wrap" style="height:100%">
+                <h4 style="flex-basis:100%;text-align:center;">Total Transaction Amount</h4>
+                <h3>₹ @TotalTransactionAmount</h3>
+            </div>
+        </div>
+
+        <div style="flex-basis:50%;" class=" p-4">
+            <form class="d-flex flex-wrap" @onsubmit="CalculateTotalTransactionAmount">
+                <div style="flex-basis:100%;">
+                    <div class="form-floating ">
+                        <input type="date" min="1999-01-01" max="2030-01-01" required @bind="TotalTransactionStartDate" class="form-control mb-2" id="StartDate" placeholder="StartDate">
+                        <label for="StartDate">Start Date</label>
+                    </div>
+                    <div class="form-floating ">
+                        <input type="date" min="1999-01-01" max="2030-01-01" required @bind="TotalTransactionEndDate" class="form-control mb-2" id="EndDate" placeholder="EndDate">
+                        <label for="EndDate">End Date</label>
+                    </div>
+                    <select class="form-select mb-3 " @bind="TotalTransactionCategory" required>
+                        <option value="All" selected>All</option>
+                        <option value="Investment">Investment</option>
+                        <option value="Groceries">Groceries</option>
+                        <option value="Transportation">Transportation</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Unassigned">Unassigned</option>
+                        <option value="Dining out">Dining out</option>
+
+
+                        @if (categories != null)
+                        {
+                            @foreach (var item in categories)
+                            {
+                                <option value="@item.Name">@item.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <button class="btn btn-primary " style="flex-basis:100%">submit</button>
+            </form>
+
+        </div>
+    </div>
+    <div class="dashboard-cards shadow d-flex flex-column justify-content-center align-items-center">
+        <h4>Most Spent On</h4>
+
+        <h1> @MostSpentCategory</h1>
+        <p> ₹ @MostSpentCategoryAmount</p>
+
+    </div>
+</div>
+@code{
+    [Parameter]
+    public List<BLTransaction> transactions{ get; set; }
+    [Parameter]
+    public List<BLCategory> categories{ get; set; }
+    public double TotalTransactionAmount { get; set; }
+    public DateTime TotalTransactionStartDate { get; set; }
+    public DateTime TotalTransactionEndDate { get; set; }
+    public string TotalTransactionCategory { get; set; }
+    public string MostSpentCategory { get; set; }
+    public double MostSpentCategoryAmount { get; set; }
+        Dictionary<string, double> map = new Dictionary<string, double>();
+    protected override void OnInitialized()
+    {
+        TotalTransactionStartDate = DateTime.Now.AddDays(-30).Date;
+        TotalTransactionEndDate = DateTime.Now.Date;
+        TotalTransactionCategory = "All";
+        MostSpentCategoryAmount = 0;
+    }
+    public void CalculateTotalTransactionAmount()
+    {
+        TotalTransactionAmount = 0;
+        var _transactions = transactions.Where(e => e.Date.Date >= TotalTransactionStartDate.Date && e.Date.Date <= TotalTransactionEndDate && (TotalTransactionCategory == "All" ? true : e.Category == TotalTransactionCategory)).ToList();
+        foreach (var transaction in _transactions)
+        {
+            TotalTransactionAmount += transaction.Amount;
+        }
+    }
+    protected override void OnParametersSet()
+    {
+        foreach (var transaction in transactions)
+        {
+            if (map.TryGetValue(transaction.Category, out double value))
+            {
+                map[transaction.Category] = transaction.Amount + value;
+            }
+            else
+            {
+                map.Add(transaction.Category, transaction.Amount);
+            }
+            if (map[transaction.Category] > MostSpentCategoryAmount)
+            {
+                MostSpentCategoryAmount = map[transaction.Category];
+                MostSpentCategory = transaction.Category;
+            }
+        }
+        CalculateTotalTransactionAmount();
+        
+    }
+}

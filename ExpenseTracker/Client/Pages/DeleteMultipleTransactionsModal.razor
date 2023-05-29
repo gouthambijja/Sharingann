@@ -1,0 +1,36 @@
+﻿@using ExpressTrackerLogicLayer.Models;
+@using ExpenseTracker.Client.ViewModels;
+@inject ITransactionViewModel _transactionViewModel
+@inject StateContainerService stateService
+@inject BinTransactionStateContainerService binTransactionStateContainerService
+<div class=" vw-100 d-flex justify-content-center align-content-center p-5 rounded">
+    <form class="bg-white p-5 rounded" @onsubmit="DeleteSelectedTransactions">
+        <h4>Are you sure you're deleting <b>@transactionIds.Count()</b> number of transactions</h4>
+        <div class="d-flex justify-content-end">
+            <button class="btn btn-danger me-2" type="submit">Delete</button>
+            <button class="btn btn-secondary" type="button" @onclick="CancelDelete">Cancel</button>
+        </div>
+    </form>
+</div>
+
+@code {
+    [CascadingParameter]
+    BlazoredModalInstance BlazoredModal { get; set; } = default;
+    [Parameter]
+    public List<string> transactionIds { get; set; }
+    [Parameter]
+    public List<BLTransaction> transactions { get; set; }
+    [Parameter]
+    public int NoOfTransactionsSelected { get; set; }
+    public async void CancelDelete()
+    {
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+    }
+    public async void DeleteSelectedTransactions()
+    {
+        await _transactionViewModel.DeleteMultiple(transactionIds);
+        binTransactionStateContainerService.AddTransactions(transactions);
+        stateService.DeleteMultipleTransactions(transactionIds);
+        await BlazoredModal.CloseAsync(ModalResult.Ok());
+    }
+}

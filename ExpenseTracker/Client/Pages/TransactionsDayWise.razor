@@ -1,0 +1,101 @@
+﻿@using ExpressTrackerLogicLayer.Models;
+@inject IToastService toastService
+
+<h2 style="text-align:center;padding:1rem;">Category Day wise Summary</h2>
+@if (transactions != null && transactions.Count() != 0 && categories != null && categories.Count >= 0)
+{
+
+    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+}
+<div class="d-flex w-100 justify-content-end p-3">
+        <form class="d-flex" @onsubmit="CreateCharts">
+        <div class="form-floating ">
+                <input type="date" min="1999-01-01" max="2030-01-01" required @bind="StartDate" class="form-control me-2" id="StartDate" placeholder="StartDate">
+            <label for="StartDate">Start Date</label>
+        </div>
+        <div class="form-floating ">
+                <input type="date" min="1999-01-01" max="2030-01-01" required @bind="EndDate" class="form-control me-2" id="EndDate" placeholder="EndDate">
+            <label for="EndDate">End Date</label>
+        </div>
+        <button class="btn btn-secondary">submit</button>
+        </form>
+</div>
+@code {
+    [Parameter]
+    public List<BLTransaction> transactions { get; set; }
+    [Parameter]
+    public List<BLCategory> categories { get; set; }
+    private int BarIndex = -1; //default value cannot be 0 -> first selectedindex is 0.
+    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
+    public List<ChartSeries> Series = new List<ChartSeries>();
+    public List<ChartSeries> BarSeries = new List<ChartSeries>();
+    public int year = DateTime.Now.Year;
+    public List<string> categoryNames = new() { "Investment", "Groceries", "Entertainment", "Transportation", "Unassigned", "Dining out" };
+    public DateTime StartDate = DateTime.Now.AddDays(-30);
+    public DateTime EndDate = DateTime.Now;
+    public string[] XAxisLabels = new string[1];
+    //---------------------------------------------------------------------------------------------------------------------
+    public void CreateCharts()
+    {
+        Series.RemoveRange(0, Series.Count());
+        int TotalNoOfDaysInGivenRange = (EndDate - StartDate).Days;
+        if(TotalNoOfDaysInGivenRange > 40)
+        {
+            toastService.ShowWarning("Date Difference should be less then 40 days");
+            return;
+        }
+        string[] days = new string[TotalNoOfDaysInGivenRange];
+        for(int i=0; i < TotalNoOfDaysInGivenRange; i++)
+        {
+            days[i] = StartDate.AddDays(i).Day.ToString();
+        }
+        XAxisLabels = days;
+        foreach (var category in categoryNames)
+        {
+            DateTime StartDateCopy = StartDate;
+            var TransactionsOfGivenDateRange = new double[TotalNoOfDaysInGivenRange];
+            int DaysIterator = 0;
+            while (DaysIterator != TotalNoOfDaysInGivenRange)
+            {
+                var category_transactions = transactions.Where(e => e.Category == category && e.Date.Date == StartDateCopy.AddDays(DaysIterator).Date);
+                double TotalTransactionAmountOfDay = 0;
+                int NoOfTransactions = 0;
+                foreach (var transaction in category_transactions)
+                {
+                    TotalTransactionAmountOfDay += transaction.Amount;
+                    NoOfTransactions++;
+                }
+                double AvgTransactionAmountOfDay = 0;
+                if (NoOfTransactions != 0)
+                {
+                    AvgTransactionAmountOfDay = TotalTransactionAmountOfDay / NoOfTransactions;
+                }
+                TransactionsOfGivenDateRange[DaysIterator] = AvgTransactionAmountOfDay;
+                DaysIterator++;
+            }
+            Series.Add(new ChartSeries() { Name = category, Data = TransactionsOfGivenDateRange });
+        }
+
+        //-------------------------------------------------------------------------------------------------------------------
+
+    }
+    protected async override Task OnInitializedAsync()
+    {
+
+
+    }
+    protected override void OnParametersSet()
+    {
+        if (categoryNames.Count() <= 6)
+        {
+            foreach (var category in categories)
+            {
+                categoryNames.Add(category.Name);
+            }
+        }
+        CreateCharts();
+    }
+
+
+
+}

@@ -1,0 +1,35 @@
+﻿@using ExpressTrackerLogicLayer.Models;
+<div class=" vw-100  d-flex justify-content-center align-content-center p-5 rounded">
+    <div class="bg-white p-5 rounded">
+        <div class="card mb-2 shadow transaction-card">
+            <div class="card-header ps-5 bg-transparent">
+                <h4>@transaction.Name</h4>
+            </div>
+            <div class="card-body  ">
+                <h5 class="card-title text-primary">₹@transaction.Amount /-</h5>
+                <p class="card-text"><b>Category:</b>@transaction.Category</p>
+                <p class="card-text"><b>Description:</b>@transaction.Description</p>
+                <div class="" style="text-align:right;">@transaction.Date</div>
+
+            </div>
+            <div class="card-footer text-muted bg-transparent">
+
+
+            </div>
+        </div>
+        <div class="d-flex justify-content-end">
+        <button class="btn btn-secondary" type="button" @onclick="CloseModal">Close</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public BlazoredModalInstance BlazoredModal { get; set; } = default;
+    [Parameter]
+    public BLTransaction transaction { get; set; }
+    public async Task CloseModal()
+    {
+        await BlazoredModal.CloseAsync();
+    }
+}

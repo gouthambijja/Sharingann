@@ -29,7 +29,7 @@ namespace ExpenseTracker.Client
             Transactions.Insert(0, _transaction);
             NotifyStateChanged();
         }
-        public void AddTrasactions(List<BLTransaction> _transactions)
+        public void AddTransactions(List<BLTransaction> _transactions)
         {
             Console.WriteLine(_transactions.Count());
             _transactions.AddRange(Transactions);
@@ -50,6 +50,14 @@ namespace ExpenseTracker.Client
         {
             Transactions.Remove(_transaction);
             NotifyStateChanged();
+        }
+        public void DeleteMultipleTransactions(List<string> _transactionIds)
+        {
+            foreach(var id in _transactionIds)
+            {
+                Transactions.RemoveAll(e => _transactionIds.Contains(e.TransactionId));
+                NotifyStateChanged();
+            }
         }
         public void SetTransaction(List<BLTransaction> _transactions)
         {

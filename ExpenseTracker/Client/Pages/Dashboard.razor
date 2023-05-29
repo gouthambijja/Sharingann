@@ -1,60 +1,79 @@
 ﻿@page "/Dashboard"
 @using ExpenseTracker.Client.ViewModels;
 @using ExpressTrackerLogicLayer.Models
+@inject StateContainerService stateService
+@inject CategoiresStateContainerService categoriesStateService
 @attribute [Authorize]
+
 
 @inject IToastService toastService
 @inject IHomeViewModel _homeViewModel
 @inject NavigationManager nav
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
-<div>
+<div class=" p-5" style="min-height:100%">
+    <DashBoardUtils transactions = "@stateService.Transactions" categories = "@categoriesStateService.Categories"/>
     <div class="d-flex justify-content-around" style="flex-wrap:wrap;">
         <div class="shadow  px-5 graph-container">
-           <CategorySummaryLineGraph categories = "@categoriesStateService.Categories" transactions="@stateService.Transactions"/>
+            <CategorySummaryLineGraph categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
+        </div>
+        <div class="shadow px-5 graph-container" >
+            <CategoryPieChart categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
+        </div>
+        <div class="shadow  px-5 mt-5 graph-container">
+            <TransactionsDayWise categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
+        </div>
+        <div class="shadow mt-5 p-5 graph-container-fluid">
+            <ScatterChart categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
+        </div>
+        <div class="shadow mt-5 p-5 graph-container-fluid">
+            <MonthWiseTotalTransactionRazorChart categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
         </div>
     </div>
 </div>
+
 @code {
-    [CascadingParameter(Name = "StateService")]
-    public StateContainerService stateService { get; set; }
-    [CascadingParameter(Name = "CategoryStateService")]
-    public CategoiresStateContainerService categoriesStateService { get; set; }
+
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
-
+   
     protected async override Task OnInitializedAsync()
     {
         stateService.OnStateChange += StateHasChanged;
+        
+        //await jsRuntime.InvokeVoidAsync("loadGraph");
+
     }
+    
     protected override async Task OnParametersSetAsync()
     {
         //toastService.ShowInfo("HOME REndered");
 
-        try
-        {
-            var authState = await authenticationStateTask;
-            var _user = authState.User;
+        //try
+        //{
+        //    var authState = await authenticationStateTask;
+        //    var _user = authState.User;
 
-            if (!_user.Identity.IsAuthenticated)
-            {
-                Console.WriteLine(_user.ToString());
-                Console.WriteLine("up");
-                nav.NavigateTo("/login");
-            }
-            else
-            {
-                
+        //    if (!_user.Identity.IsAuthenticated)
+        //    {
+        //        Console.WriteLine(_user.ToString());
+        //        Console.WriteLine("up");
+        //        nav.NavigateTo("/login");
+        //    }
+        //    else
+        //    {
 
-            }
-        }
-        catch (System.Exception ex)
-        {
-            Console.WriteLine(ex);
-        }
+
+        //    }
+        //}
+        //catch (System.Exception ex)
+        //{
+        //    Console.WriteLine(ex);
+        //}
     }
     public void Dispose()
     {
         stateService.OnStateChange -= StateHasChanged;
+
     }
     //protected override void OnAfterRender(bool firstrender)
     //{

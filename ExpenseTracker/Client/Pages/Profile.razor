@@ -3,16 +3,21 @@
 @attribute [Authorize]
 <div class=" vw-100 d-flex justify-content-center align-items-center" style="height:90vh">
 
-    <div class="w-50 h-50 shadow-lg bg-primary bg-gradiant  rounded text-white" style="min-width:max-content">
+    <div class="w-100 h-100   rounded text-white" style="min-width:max-content">
         <div>
-            <h1 class="p-4" style="text-align:center;">Username:<b>@if (stateService.User != null)
+            <div class="w-100 p-3">
+                <div class="  border rounded-circle m-auto" style="width:15%;min-width:200px;aspect-ratio:1/1;background:url(https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg);background-size:cover;">
+                hey
+            </div>
+            </div>
+            <h1 class="p-4 text-primary" style="text-align:center;">Username:<b>@if (stateService.User != null)
                     {
                         @stateService.User.Username
                     }</b></h1>
         </div>
         <div class="d-flex w-100 bg-white text-primary" style="text-align:center">
             <div class="w-50 border-end p-3">
-                <h1><i class="fa-solid fa-dollar-sign"></i></h1>
+                <h1 ><i class="fa-solid fa-dollar-sign"></i></h1>
                 <h2>Transactions</h2>
                 @if(stateService.Transactions != null && stateService.Transactions.Count()!= 0){
                 <h2>@stateService.Transactions.Count()</h2>
@@ -27,7 +32,7 @@
             </div>
 
         </div>
-        <div class="text-white d-flex flex-row-reverse p-4"><button class="btn btn-warning" @onclick="ChangePassword">change password</button></div>
+        <div class="text-white d-flex justify-content-center p-4"><button class="btn btn-warning" @onclick="ChangePassword">change password</button></div>
     </div>
 </div>
 

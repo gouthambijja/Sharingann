@@ -1,0 +1,111 @@
+﻿@page "/radarSimple"
+@using ExpressTrackerLogicLayer.Models;
+<h2 style="text-align:center;">Category Wise Montly Average</h2>
+<Chart Config="_config1" @ref="_chart1" Height="600px"></Chart>
+<div class="d-flex w-100 justify-content-end p-3">
+    <div class="d-flex ">
+        <div class="form-floating ">
+            <input type="year" min="1999" max="@DateTime.Now.Year" required @bind="year" class="form-control" id="year" placeholder="YYYY">
+
+            <label for="year">year</label>
+        </div>
+        <button class="btn btn-secondary mx-2" @onclick="(()=>{CreateCharts();})">submit</button>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public List<BLTransaction> transactions { get; set; }
+    [Parameter]
+    public List<BLCategory> categories { get; set; }
+    private int year = DateTime.Now.Year;
+    private RadarChartConfig? _config1;
+    private Chart? _chart1;
+    private Random random = new Random();
+    public List<string> categoryNames = new() { "Investment", "Groceries", "Entertainment", "Transportation", "Unassigned", "Dining out" };
+    public static List<string> Months = new List<string>() {
+            "January",
+            "Febuary",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        };
+    protected override async Task OnInitializedAsync()
+    {
+        _config1 = new RadarChartConfig()
+            {
+                Options = new RadarOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = false
+                }
+            };
+
+
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (categoryNames.Count() <= 6)
+        {
+            foreach (var category in categories)
+            {
+                categoryNames.Add(category.Name);
+            }
+        }
+        CreateCharts();
+    }
+    public void CreateCharts()
+    {
+        _config1 = new RadarChartConfig()
+            {
+                Options = new RadarOptions()
+                {
+                    Responsive = true,
+                    MaintainAspectRatio = false
+                }
+            };
+        _config1.Data.Labels = Months;
+
+        foreach (var category in categoryNames)
+        {
+            List<Decimal?> AvgTransactions = new List<Decimal?>();
+            for (int month = 1; month <= 12; month++)
+            {
+                double TotalTransactionAmountOfMonth = 0;
+                var category_transactions = transactions.Where(e => e.Category == category && e.Date.Year == year && e.Date.Month == month);
+                int NoOfTransactions = 0;
+                foreach (var transaction in category_transactions)
+                {
+                    TotalTransactionAmountOfMonth += transaction.Amount;
+                    NoOfTransactions++;
+                }
+                double AvgTransactionAmountOfMonth = 0;
+                if (NoOfTransactions != 0)
+                {
+                    AvgTransactionAmountOfMonth = TotalTransactionAmountOfMonth / NoOfTransactions;
+                }
+                AvgTransactions.Add((decimal)AvgTransactionAmountOfMonth);
+            }
+            int r = random.Next(200), g = random.Next(255), b = random.Next(200);
+            _config1.Data.Datasets.Add(new RadarDataset()
+                {
+                    Label = $"{category}",
+                    Data = AvgTransactions,
+                    Fill = true,
+                    BackgroundColor = $"rgba({r}, {g}, {b}, 0.2)",
+                    BorderColor = $"rgb({r}, {g}, {b})",
+                    PointBackgroundColor = $"rgb({r}, {g}, {b})",
+                    PointBorderColor = "#fff",
+                    PointHoverBackgroundColor = "#fff",
+                    PointHoverBorderColor = $"rgb({r}, {g}, {b})"
+                });
+        }
+
+    }
+}

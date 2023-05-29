@@ -14,11 +14,11 @@
 
 <div class="container-fluid  min-vh-100">
     <button type="button"
-            class="btn btn-danger position-fixed " style="bottom:20px;right:20px;border-radius:50%;z-index:100;" @onclick="alert" >
+            class="btn btn-danger position-fixed " style="bottom:20px;right:20px;border-radius:50%;z-index:100;" @onclick="ScrollTop" >
         <i class="fas fa-arrow-up"></i>
     </button>
     <div class="row ">
-        <div class="col-md-3 mh-100 position-relative mb-3"><div class="position-fixed d-flex flex-column p-4 shadow fixeddiv"><AddTransactions Categories="@categoriesStateService.Categories" /><Category Categories="@categoriesStateService.Categories" User="@stateService.User"/></div></div>
+        <div class="col-md-3 mh-100 position-relative mb-3"><div class="position-fixed d-flex flex-column p-4 shadow fixeddiv"><AddTransactions /><Category Categories="@categoriesStateService.Categories" User="@stateService.User"/></div></div>
         <div class=" col-md-9   transactions"><Transactions transactions ="@stateService.Transactions" Categories="@categoriesStateService.Categories"/></div>
     </div>
 </div>
@@ -32,7 +32,7 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    public async void alert()
+    public async void ScrollTop()
     {
         await jsRuntime.InvokeVoidAsync("scrollToTop");
     }

@@ -24,6 +24,10 @@ namespace ExpressTrackerLogicLayer.Services
             {
                 Console.WriteLine("tranasactions!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 transaction.TransactionId = Guid.NewGuid().ToString();
+                transaction.CreatedAt = DateTime.Now;
+                transaction.UpdatedAt = DateTime.Now;
+                transaction.IsActive = true;
+                transaction.IsPermanentDelete = false;
                 var mapper = AutoMappers.InitializeTransactionAutoMapper();
                 Transaction _transaction = mapper.Map<Transaction>(transaction);
                 _transaction = await _transactionRepository.Add(_transaction);
@@ -44,7 +48,11 @@ namespace ExpressTrackerLogicLayer.Services
                 foreach(var transaction in transactions)
                 {
                     transaction.TransactionId = Guid.NewGuid().ToString();
-                _transactions.Add( mapper.Map<Transaction>(transaction));
+                    transaction.CreatedAt = DateTime.Now;
+                    transaction.UpdatedAt = DateTime.Now;
+                    transaction.IsActive = true;
+                    transaction.IsPermanentDelete = false;
+                    _transactions.Add( mapper.Map<Transaction>(transaction));
                 }
                 _transactions = await _transactionRepository.AddMany(_transactions);
                 if (_transactions == null) return null;
@@ -70,6 +78,20 @@ namespace ExpressTrackerLogicLayer.Services
                 return false;
             }
         }
+        public async Task<bool> DeletePermanently(string id)
+        {
+            try
+            {
+                Console.WriteLine("hey SErvice");
+                var _transaction = await _transactionRepository.DeletePermanently(id);
+                if (_transaction == false) return false;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         
 
@@ -85,6 +107,33 @@ namespace ExpressTrackerLogicLayer.Services
             try
             {
                var transactions =  await _transactionRepository.GetAll(UserId);
+                if (transactions == null) return null;
+               var _BLTransactions = new List<BLTransaction>();
+                foreach (var transaction in transactions)
+                {
+                    _BLTransactions.Add(new BLTransaction()
+                    {
+                        Name = transaction.Name,
+                        Amount = transaction.Amount,
+                        Category = transaction.Category,
+                        Description = transaction.Description,
+                        Date = transaction.Date,
+                        UserId = transaction.UserId,
+                        TransactionId = transaction.TransactionId
+                    });
+                }
+                return _BLTransactions;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        public async Task<List<BLTransaction>> GetBinAll(string UserId)
+        {
+            try
+            {
+               var transactions =  await _transactionRepository.GetBinAll(UserId);
                 if (transactions == null) return null;
                var _BLTransactions = new List<BLTransaction>();
                 foreach (var transaction in transactions)
@@ -164,6 +213,24 @@ namespace ExpressTrackerLogicLayer.Services
                 return null;
             }
         }
+
+        public async Task<BLTransaction> Restore(BLTransaction transaction)
+        {
+            try
+            {
+                Console.WriteLine("restore-");
+                var mapper = AutoMappers.InitializeTransactionAutoMapper();
+                Transaction _transaction = mapper.Map<Transaction>(transaction);
+                _transaction = await _transactionRepository.Restore(_transaction);
+                if (_transaction == null) return null;
+                return transaction;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public async Task<BLTransaction> Update(BLTransaction transaction)
         {
             try
@@ -179,6 +246,16 @@ namespace ExpressTrackerLogicLayer.Services
                 return null;
             }
         }
-
+        public async Task<bool> DeleteMultiple(List<string> TransactionIds)
+        {
+            try
+            {
+                return await _transactionRepository.DeleteMultiple(TransactionIds);
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
