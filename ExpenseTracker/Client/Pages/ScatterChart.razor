@@ -81,7 +81,6 @@
         {
             days[i] = i + 1;
         }
-        Console.WriteLine(StartDate.Date);
         foreach (var category in categoryNames)
         {
             List<ScatterXYValue> ScatterDatasets = new List<ScatterXYValue>();
@@ -89,7 +88,7 @@
             int DaysIterator = 0;
             while (DaysIterator <= NoOfDays)
             {
-                var category_transactions = transactions.Where(e => e.Category == category && e.Date.Date == StartDate.AddDays(DaysIterator+1).Date);
+                var category_transactions = transactions.Where(e => e.Category == category && e.Date.Date == StartDate.AddDays(DaysIterator).Date);
                 double TotalTransactionAmountOfDay = 0;
                 int NoOfTransactions = 0;
                 foreach (var transaction in category_transactions)
@@ -105,10 +104,8 @@
                 TransactionsOfGivenDateRange[DaysIterator] = AvgTransactionAmountOfDay;
                 DaysIterator++;
             }
-            Console.WriteLine(category + "--------------");
             for (var it = 0; it < days.Length; it++)
             {
-                Console.WriteLine(days[it] + " - " + TransactionsOfGivenDateRange[it]);
                 ScatterDatasets.Add(new ScatterXYValue() { X = days[it], Y = (decimal)TransactionsOfGivenDateRange[it] });
             }
             var color = $"rgb({random.Next(200)},{random.Next(200)},{random.Next(200)})";

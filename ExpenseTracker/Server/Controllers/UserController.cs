@@ -46,6 +46,8 @@ namespace ExpenseTracker.Server.Controllers
                     Username = user.Username,
                     UserId = "",
                     Password = user.Password,
+                    SecurityQuestion = user.SecurityQuestion,
+                    SecurityAnswer = user.SecurityAnswer,
                 });
             }
             else

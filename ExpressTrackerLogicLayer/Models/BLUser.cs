@@ -13,6 +13,8 @@ namespace ExpressTrackerLogicLayer.Models
         public string? Password { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+        public string? SecurityQuestion { get; set; }
+        public string? SecurityAnswer { get; set; }
         public bool IsActive { get; set; }
         public bool IsPermanentDelete { get; set; }
     }

@@ -9,15 +9,15 @@
             <p>  @transactions[0].Category</p>
         }
     </div>
-    <div class="w-50 mediawidthfull shadow text-primary d-flex flex-row">
-        <div style="flex-basis:50%;">
+    <div class="w-50 mediawidthfull shadow text-primary d-flex flex-row flex-wrap">
+        <div class="on-media-full-flex" style="flex-basis:50%;">
             <div class="d-flex p-3 justify-content-center align-content-center flex-wrap" style="height:100%">
                 <h4 style="flex-basis:100%;text-align:center;">Total Transaction Amount</h4>
                 <h3>₹ @TotalTransactionAmount</h3>
             </div>
         </div>
 
-        <div style="flex-basis:50%;" class=" p-4">
+        <div class="on-media-full-flex p-4" style="flex-basis:50%;" >
             <form class="d-flex flex-wrap" @onsubmit="CalculateTotalTransactionAmount">
                 <div style="flex-basis:100%;">
                     <div class="form-floating ">

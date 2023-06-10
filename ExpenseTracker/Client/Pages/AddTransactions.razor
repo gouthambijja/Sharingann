@@ -33,9 +33,9 @@
         <option value="Dining out">Dining out</option>
 
         
-        @if (Categories != null)
+        @if (CategoryStateContainer.Categories != null)
         {
-            @foreach (var item in Categories)
+            @foreach (var item in CategoryStateContainer.Categories)
             {
                 if (item != null)
                 {
@@ -61,7 +61,7 @@
     {
         <InputFile OnChange="@LoadTransactions" required accept="text/plain , application/json  " />
     }
-    <button class="btn btn-primary mt-3" type="submit">Upload pdf</button>
+    <button class="btn btn-primary mt-3" type="submit">Upload Transactions</button>
     </form>
 @code {
 
@@ -75,7 +75,6 @@
         _transactionViewModel.Category = "Category";
         stateService.OnStateChange += StateHasChanged;
         CategoryStateContainer.OnStateChange += StateHasChanged;
-        Categories = CategoryStateContainer.Categories;
     }
     public async void AddTransaction()
     {
@@ -99,7 +98,6 @@
             {
                 _transactions[i].UserId = stateService.User.UserId;
             }
-            Console.WriteLine(_transactions.Count());
         }
         catch
         {
@@ -110,13 +108,15 @@
     }
     public async void AddListTransactions()
     {
-        Console.WriteLine(_transactions.Count());
         _transactions = await _transactionViewModel.AddTransactions(_transactions);
         stateService.AddTransactions(_transactions);
         _transactions = new List<BLTransaction>();
         ClearInputFile();
     }
-
+    protected override void OnParametersSet()
+    {
+        Categories = CategoryStateContainer.Categories;
+    }
     //Call ClearInputFile whenever value must be cleared.
     private void ClearInputFile()
     {

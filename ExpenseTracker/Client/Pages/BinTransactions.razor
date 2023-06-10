@@ -33,8 +33,10 @@
                                 @{
                                     int idx = i;
                                     <div class="d-flex justify-content-end mx-2 my-2">
-                                        <button class="btn btn-primary me-2 w-25 " style="min-width:max-content !important" @onclick="@(()=> RestoreTransaction(idx))">Restore</button>
-                                        <button class="btn btn-primary me-2 w-25 " style="min-width:max-content !important" @onclick="@(()=> DeletePermanently(idx))">Delete permanently</button>
+                                        <span style="min-width:max-content !important" class="me-2 hover-color-primary" @onclick="@(()=> RestoreTransaction(idx))"><i class="fa-solid fa-trash-arrow-up"></i>
+
+                                    </span>
+                                        <span style="min-width:max-content !important" class="me-2 hover-color-primary" @onclick="@(()=> DeletePermanently(idx))"><i class="fa fa-trash" aria-hidden="true"></i></span>
                                     </div>
                                 }
                             </div>

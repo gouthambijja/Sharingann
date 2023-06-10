@@ -50,19 +50,19 @@ namespace ExpressTrackerDBAccessLayer.Repositories
             }
         }
 
-        public async Task<List<Category>> Get(string UserId)
-        {
-            try
+            public async Task<List<Category>> Get(string UserId)
             {
-                var List = await _CategoryDBContext.Categories.
-               Where(e => e.UserId == UserId && e.IsActive == true).ToListAsync();
-                if (List.Count == 0) return null;
-                else return List;
+                try
+                {
+                    var List = await _CategoryDBContext.Categories.
+                   Where(e => e.UserId == UserId && e.IsActive == true).ToListAsync();
+                    if (List.Count == 0) return null;
+                    else return List;
+                }
+                catch
+                {
+                    return null;
+                }
             }
-            catch
-            {
-                return null;
-            }
-        }
     }
 }

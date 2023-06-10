@@ -11,15 +11,18 @@
 @inject NavigationManager nav
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 <div class=" p-5" style="min-height:100%">
-    <DashBoardUtils transactions = "@stateService.Transactions" categories = "@categoriesStateService.Categories"/>
+    <DashBoardUtils transactions="@stateService.Transactions" categories="@categoriesStateService.Categories" />
     <div class="d-flex justify-content-around" style="flex-wrap:wrap;">
-        <div class="shadow  px-5 graph-container">
-            <CategorySummaryLineGraph categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
+        <div class="shadow  px-5 mt-5 graph-container">
+            <LineGraph categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
         </div>
-        <div class="shadow px-5 graph-container" >
+        @*<div class="shadow  px-5 graph-container">
+        <CategorySummaryLineGraph categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
+        </div>*@
+        <div class="shadow px-5 graph-container">
             <CategoryPieChart categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
         </div>
-        <div class="shadow  px-5 mt-5 graph-container">
+        <div class="shadow  px-5 mt-5 graph-container-fluid">
             <TransactionsDayWise categories="@categoriesStateService.Categories" transactions="@stateService.Transactions" />
         </div>
         <div class="shadow mt-5 p-5 graph-container-fluid">
@@ -35,15 +38,15 @@
 
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
-   
+
     protected async override Task OnInitializedAsync()
     {
         stateService.OnStateChange += StateHasChanged;
-        
+
         //await jsRuntime.InvokeVoidAsync("loadGraph");
 
     }
-    
+
     protected override async Task OnParametersSetAsync()
     {
         //toastService.ShowInfo("HOME REndered");

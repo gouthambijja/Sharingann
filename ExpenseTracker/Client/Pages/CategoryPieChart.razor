@@ -15,31 +15,34 @@
     int dataSize = 4;
     double[] data;
     string[] labels;
-    
+    Dictionary<string, int> map = new Dictionary<string, int>();
+
 
     protected override void OnInitialized()
     {
-        Dictionary<string, int> map = new Dictionary<string, int>();
         stateService.OnStateChange += StateHasChanged;
         categoryStateService.OnStateChange += StateHasChanged;
 
-        foreach(var transaction in transactions)
+
+    }
+    protected override void OnParametersSet()
+    {
+        foreach (var transaction in transactions)
         {
-            if(map.TryGetValue(transaction.Category,out int value))
+            if (map.TryGetValue(transaction.Category, out int value))
             {
-                map[transaction.Category] =  value + 1;
+                map[transaction.Category] = value + 1;
             }
             else
             {
-                map.Add(transaction.Category, 1);   
+                map.Add(transaction.Category, 1);
             }
         }
-        double[] CategoryCountArray = new double[categories.Count()+6];
-        string[] CategoryNameArray = new string[categories.Count()+6];
+        double[] CategoryCountArray = new double[categories.Count() + 6];
+        string[] CategoryNameArray = new string[categories.Count() + 6];
         int idx = 0;
-        foreach(var mapItem in map)
+        foreach (var mapItem in map)
         {
-            Console.WriteLine(CategoryCountArray.Length + " " + idx);
             CategoryCountArray[idx] = mapItem.Value;
             CategoryNameArray[idx] = $"{mapItem.Key} ({mapItem.Value})";
             idx++;
@@ -47,7 +50,6 @@
         data = CategoryCountArray;
         labels = CategoryNameArray;
     }
-
     public void Dispose()
     {
         stateService.OnStateChange -= StateHasChanged;

@@ -62,9 +62,7 @@
         var user = await _homeViewModel.GetUserByJWT(token);
         if (user == null)
         {
-            Console.WriteLine(token);
-            toastService.ShowInfo("SessionEnded Please login again!");
-            Console.WriteLine("down");
+            //session ended
             nav.NavigateTo("/login");
         }
         else

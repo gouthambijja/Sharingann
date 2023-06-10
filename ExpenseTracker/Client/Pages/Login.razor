@@ -31,7 +31,7 @@
 
 
         <div class="text-center m-3">
-            <p>Forget password? <a href="#!" class="pointer text-primary">Reset</a></p>
+            <p>Forget password? <a @onclick="reset" class="pointer text-primary">Reset</a></p>
             <p>Not a member? <a @onclick="register" class="pointer text-primary">Register</a></p>
             <p>or sign up with:</p>
             <button type="button" class="btn btn-link btn-floating mx-1">
@@ -94,7 +94,7 @@
     }
     protected async override Task OnParametersSetAsync()
     {
-       
+
 
 
     }
@@ -111,7 +111,6 @@
             await localStorage.SetItemAsync("jwt_token", token);
 
             //stateService.SetUser(response);
-            Console.WriteLine("hey!!");
             nav.NavigateTo($"home", true);
         }
         catch
@@ -119,13 +118,17 @@
             toastService.ShowError("Wrong Credentials.");
         }
         logging = false;
-        StateHasChanged();
+        StateHasChanged();  
 
     }
 
     public void register()
     {
         nav.NavigateTo("registration");
+    }
+    public void reset()
+    {
+        nav.NavigateTo("/reset");
     }
     public void LoginThroughGoogle()
     {

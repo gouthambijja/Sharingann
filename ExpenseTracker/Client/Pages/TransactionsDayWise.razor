@@ -5,7 +5,7 @@
 @if (transactions != null && transactions.Count() != 0 && categories != null && categories.Count >= 0)
 {
 
-    <MudChart ChartType="MudBlazor.ChartType.Line" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+    <Chart Config="_config1" @ref="_chart1"  ></Chart>
 }
 <div class="d-flex w-100 justify-content-end p-3">
         <form class="d-flex" @onsubmit="CreateCharts">
@@ -25,35 +25,37 @@
     public List<BLTransaction> transactions { get; set; }
     [Parameter]
     public List<BLCategory> categories { get; set; }
-    private int BarIndex = -1; //default value cannot be 0 -> first selectedindex is 0.
-    private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
-    public List<ChartSeries> Series = new List<ChartSeries>();
-    public List<ChartSeries> BarSeries = new List<ChartSeries>();
+    private LineChartConfig? _config1;
+    private Chart? _chart1;
     public int year = DateTime.Now.Year;
     public List<string> categoryNames = new() { "Investment", "Groceries", "Entertainment", "Transportation", "Unassigned", "Dining out" };
     public DateTime StartDate = DateTime.Now.AddDays(-30);
     public DateTime EndDate = DateTime.Now;
-    public string[] XAxisLabels = new string[1];
+    public List<string> Dates = new List<string>();
+    private Random random = new Random();
     //---------------------------------------------------------------------------------------------------------------------
     public void CreateCharts()
     {
-        Series.RemoveRange(0, Series.Count());
-        int TotalNoOfDaysInGivenRange = (EndDate - StartDate).Days;
-        if(TotalNoOfDaysInGivenRange > 40)
+        _config1 = new LineChartConfig()
         {
-            toastService.ShowWarning("Date Difference should be less then 40 days");
+        };
+        int TotalNoOfDaysInGivenRange = (EndDate - StartDate).Days;
+        if(TotalNoOfDaysInGivenRange > 365)
+        {
+            toastService.ShowWarning("Date Difference should be less then one year");
             return;
         }
-        string[] days = new string[TotalNoOfDaysInGivenRange];
+        Dates = new List<string>();
         for(int i=0; i < TotalNoOfDaysInGivenRange; i++)
         {
-            days[i] = StartDate.AddDays(i).Day.ToString();
+            Dates.Add(StartDate.AddDays(i).ToLongDateString());
         }
-        XAxisLabels = days;
+        _config1.Data.Labels = Dates;
+
         foreach (var category in categoryNames)
         {
             DateTime StartDateCopy = StartDate;
-            var TransactionsOfGivenDateRange = new double[TotalNoOfDaysInGivenRange];
+            var TransactionsOfGivenDateRange = new List<decimal?>();
             int DaysIterator = 0;
             while (DaysIterator != TotalNoOfDaysInGivenRange)
             {
@@ -70,10 +72,20 @@
                 {
                     AvgTransactionAmountOfDay = TotalTransactionAmountOfDay / NoOfTransactions;
                 }
-                TransactionsOfGivenDateRange[DaysIterator] = AvgTransactionAmountOfDay;
+                TransactionsOfGivenDateRange.Add( (decimal)AvgTransactionAmountOfDay);
                 DaysIterator++;
             }
-            Series.Add(new ChartSeries() { Name = category, Data = TransactionsOfGivenDateRange });
+            int r = random.Next(230), g = random.Next(235), b = random.Next(230);
+            _config1.Data.Datasets.Add(new LineDataset()
+                {
+                    Label = category,
+                    Data = TransactionsOfGivenDateRange,
+                    BorderColor = $"rgb({r},{g},{b})",
+                    Tension = 0.1M,
+                    Fill = false,
+                    PointRadius = 15,
+                    PointStyle = PointStyle.Cross
+                });
         }
 
         //-------------------------------------------------------------------------------------------------------------------
@@ -81,7 +93,9 @@
     }
     protected async override Task OnInitializedAsync()
     {
-
+        _config1 = new LineChartConfig()
+        {
+        };
 
     }
     protected override void OnParametersSet()

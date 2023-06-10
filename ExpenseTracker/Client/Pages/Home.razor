@@ -53,13 +53,7 @@
 
             if (!_user.Identity.IsAuthenticated)
             {
-                Console.WriteLine(_user.ToString());
-                Console.WriteLine("up");
                 nav.NavigateTo("/login");
-            }
-            else
-            {
-                
             }
         }
         catch (System.Exception ex)

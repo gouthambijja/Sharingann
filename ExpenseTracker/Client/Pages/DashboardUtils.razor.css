@@ -1,14 +1,16 @@
-﻿.graph-container{
-    width:49%;
+﻿.graph-container {
+    width: 49%;
 }
-.graph-container-fluid{
 
-    width:99%;
+.graph-container-fluid {
+    width: 99%;
 }
+
 .dashboard-cards {
     width: 24%;
     aspect-ratio: 1 / 0.7;
 }
+
 @media (max-width: 900px) {
     .graph-container {
         width: 98%;
@@ -17,11 +19,15 @@
     .dashboard-cards {
         width: 100% !important;
         aspect-ratio: 1 / 0.4;
-        margin-top:1.5rem;
+        margin-top: 1.5rem;
     }
 
     .mediawidthfull {
         width: 100% !important;
         margin-top: 1.5rem;
+    }
+    .on-media-full-flex{
+        flex-basis:100% !important;
+        padding-bottom:5px;
     }
 }

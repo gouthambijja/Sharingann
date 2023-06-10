@@ -30,7 +30,7 @@ namespace ExpenseTracker.Client.ViewModels
                 };
         
         var response = await _httpClient.PutAsJsonAsync("/User/UpdatePassword",cp);
-                return true;
+                return await response.Content.ReadFromJsonAsync<bool>();
             }
             catch
             {

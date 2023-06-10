@@ -1,6 +1,7 @@
 ﻿@using ExpressTrackerLogicLayer.Models;
-<h2 style="text-align:center;">Category Wise Montly Average</h2>
-<Chart Config="_config1" @ref="_chart1" Height="600px"></Chart>
+
+<h2 style="text-align:center;padding:1rem;">Yearly Category Wise Summary</h2>
+<Chart Config="_config1" @ref="_chart1" Height="400px"></Chart>
 <div class="d-flex w-100 justify-content-end p-3">
     <div class="d-flex ">
         <div class="form-floating ">
@@ -17,7 +18,7 @@
     [Parameter]
     public List<BLCategory> categories { get; set; }
     private int year = DateTime.Now.Year;
-    private RadarChartConfig? _config1;
+    private LineChartConfig? _config1;
     private Chart? _chart1;
     private Random random = new Random();
     public List<string> categoryNames = new() { "Investment", "Groceries", "Entertainment", "Transportation", "Unassigned", "Dining out" };
@@ -35,17 +36,16 @@
             "November",
             "December"
         };
+
     protected override async Task OnInitializedAsync()
     {
-        _config1 = new RadarChartConfig()
+        _config1 = new LineChartConfig()
             {
-                Options = new RadarOptions()
+                Options = new Options()
                 {
-                    Responsive = true,
-                    MaintainAspectRatio = false
-                }
-            };
-
+                    Responsive = true
+    }
+        };
 
     }
     protected override async Task OnParametersSetAsync()
@@ -58,19 +58,14 @@
             }
         }
         CreateCharts();
+
     }
     public void CreateCharts()
     {
-        _config1 = new RadarChartConfig()
-            {
-                Options = new RadarOptions()
-                {
-                    Responsive = true,
-                    MaintainAspectRatio = false
-                }
-            };
+        _config1 = new LineChartConfig()
+        {
+        };
         _config1.Data.Labels = Months;
-
         foreach (var category in categoryNames)
         {
             List<Decimal?> AvgTransactions = new List<Decimal?>();
@@ -91,20 +86,17 @@
                 }
                 AvgTransactions.Add((decimal)AvgTransactionAmountOfMonth);
             }
-            int r = random.Next(200), g = random.Next(255), b = random.Next(200);
-            _config1.Data.Datasets.Add(new RadarDataset()
+            int r = random.Next(230), g = random.Next(235), b = random.Next(230);
+            _config1.Data.Datasets.Add(new LineDataset()
                 {
-                    Label = $"{category}",
+                    Label = category,
                     Data = AvgTransactions,
-                    Fill = true,
-                    BackgroundColor = $"rgba({r}, {g}, {b}, 0.2)",
-                    BorderColor = $"rgb({r}, {g}, {b})",
-                    PointBackgroundColor = $"rgb({r}, {g}, {b})",
-                    PointBorderColor = "#fff",
-                    PointHoverBackgroundColor = "#fff",
-                    PointHoverBorderColor = $"rgb({r}, {g}, {b})"
+                    BorderColor = $"rgb({r},{g},{b})",
+                    Tension = 0.1M,
+                    Fill = false,
+                    PointRadius = 15,
+                    PointStyle = PointStyle.Cross
                 });
         }
-
     }
 }

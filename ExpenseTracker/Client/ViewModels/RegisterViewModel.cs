@@ -14,6 +14,8 @@ namespace ExpenseTracker.Client.ViewModels
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
         private string HashSalt = "$2a$10$xnQs0sKkOlMyMhgeSiCuuO";
+        public string SecurityQuestion { get; set; }
+        public string SecurityAnswer { get; set; }
 
 
 
